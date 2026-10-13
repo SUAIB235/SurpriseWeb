@@ -1,433 +1,607 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#fff0f6">
-<title>Pink Moment ♡</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pink Moment ♡</title>
 
-<style>
-* { box-sizing: border-box; }
+  <!-- EXIF metadata editor -->
+  <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.js"></script>
 
-:root {
-  --pink: #ff5c9a;
-  --deep: #e93f83;
-  --ink: #71354f;
-}
+  <style>
+    * { box-sizing: border-box; }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 22px 16px;
-  font-family: "Trebuchet MS", system-ui, sans-serif;
-  color: var(--ink);
-  background:
-    radial-gradient(circle at 10% 10%, #ffd3e5, transparent 35%),
-    radial-gradient(circle at 90% 90%, #ffc4dc, transparent 38%),
-    linear-gradient(145deg, #fff7fa, #ffe7f1);
-}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(145deg, #fff0f6, #fce1ef, #f8d7ff);
+      font-family: Arial, sans-serif;
+      color: #713c59;
+    }
 
-.card {
-  width: 100%;
-  max-width: 390px;
-  text-align: center;
-  padding: 28px 22px 25px;
-  border: 1px solid white;
-  border-radius: 32px;
-  background: rgba(255,255,255,.82);
-  box-shadow: 0 18px 55px #d95c8c20;
-}
+    .app {
+      width: 100%;
+      max-width: 390px;
+      padding: 25px 20px;
+      text-align: center;
+      background: rgba(255,255,255,.78);
+      border: 1px solid #fff;
+      border-radius: 28px;
+      box-shadow: 0 15px 45px #c77ba533;
+    }
 
-.heart { color: var(--pink); font-size: 26px; }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 27px;
+      color: #d94d91;
+    }
 
-h1 {
-  margin: 0;
-  font-size: 29px;
-  letter-spacing: -.7px;
-}
+    .subtitle {
+      margin: 0 0 22px;
+      color: #9c6c88;
+      font-size: 14px;
+    }
 
-.subtitle {
-  font-size: 14px;
-  color: #a16d85;
-  margin: 9px 0 22px;
-}
+    .camera-frame {
+      width: min(78vw, 290px);
+      aspect-ratio: 1;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      overflow: hidden;
+      position: relative;
+      background: #f8d8e9;
+      border: 6px solid white;
+      outline: 2px solid #f0a3ca;
+      box-shadow: 0 8px 24px #c96ba333;
+    }
 
-.camera-ring {
-  width: min(72vw, 260px);
-  aspect-ratio: 1;
-  padding: 7px;
-  margin: 0 auto 20px;
-  border-radius: 50%;
-  background: linear-gradient(140deg, #ffb4d1, #ff5c9a, #ffc2dc);
-  box-shadow: 0 9px 28px #f17bab38;
-  position: relative;
-}
+    video, .preview, .placeholder {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-.camera-inner {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  overflow: hidden;
-  background: #ffe4ef;
-  border: 3px solid white;
-  position: relative;
-}
+    video, .preview {
+      display: block;
+    }
 
-video, #preview {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-}
+    .preview[hidden], video[hidden], .placeholder[hidden] {
+      display: none;
+    }
 
-#preview { display: none; }
+    .placeholder {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 12px;
+      padding: 24px;
+      color: #b34e87;
+    }
 
-.placeholder {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 10px;
-  color: #df6397;
-  background: linear-gradient(145deg, #ffe5f0, #fff6fa);
-}
+    .placeholder .heart { font-size: 44px; }
 
-.camera-icon { font-size: 54px; }
+    button {
+      width: 100%;
+      border: 0;
+      padding: 14px 18px;
+      margin: 6px 0;
+      border-radius: 30px;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      background: #ed72ac;
+      color: white;
+      box-shadow: 0 5px 14px #d9579530;
+    }
 
-.placeholder span:last-child {
-  font-size: 12px;
-  letter-spacing: 1px;
-}
+    button.secondary {
+      background: #f8e2ee;
+      color: #a44479;
+    }
 
-.sparkle {
-  position: absolute;
-  color: white;
-  font-size: 24px;
-  text-shadow: 0 2px 8px #e93f8366;
-  pointer-events: none;
-}
+    button:disabled {
+      opacity: .55;
+      cursor: wait;
+    }
 
-.s1 { top: 12px; right: 4px; }
-.s2 { bottom: 17px; left: 1px; }
+    .consent {
+      display: flex;
+      gap: 9px;
+      text-align: left;
+      font-size: 13px;
+      line-height: 1.5;
+      margin: 12px 2px;
+      align-items: flex-start;
+    }
 
-.hint {
-  margin: 0 0 16px;
-  font-size: 17px;
-  font-weight: 700;
-}
+    .consent input {
+      margin-top: 3px;
+      accent-color: #dc5597;
+    }
 
-button {
-  width: 100%;
-  min-height: 49px;
-  padding: 13px 16px;
-  margin-top: 10px;
-  border: 0;
-  border-radius: 17px;
-  font: inherit;
-  font-weight: 700;
-  font-size: 15px;
-  cursor: pointer;
-}
+    .status {
+      min-height: 38px;
+      margin-top: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+      color: #925b7b;
+    }
 
-button:active { transform: scale(.98); }
-button:disabled { opacity: .45; cursor: not-allowed; }
+    .tiny {
+      font-size: 11px;
+      line-height: 1.5;
+      color: #a17b94;
+      margin-top: 14px;
+    }
 
-.primary {
-  color: white;
-  background: linear-gradient(110deg, #ff83b1, #f3448b);
-  box-shadow: 0 6px 15px #f3448b28;
-}
-
-.secondary {
-  color: #d84180;
-  background: #ffe5f0;
-}
-
-.consent {
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  text-align: left;
-  font-size: 12px;
-  line-height: 1.5;
-  color: #96657c;
-  margin: 16px 2px 5px;
-}
-
-.consent input {
-  accent-color: var(--deep);
-  width: 17px;
-  height: 17px;
-  flex-shrink: 0;
-  margin: 1px 0 0;
-}
-
-#status {
-  min-height: 20px;
-  font-size: 12px;
-  color: #b34076;
-  overflow-wrap: anywhere;
-  margin: 14px 0 0;
-}
-
-.footer {
-  color: #c08ba3;
-  font-size: 11px;
-  margin-top: 18px;
-}
-
-[hidden] { display: none !important; }
-</style>
+    [hidden] { display: none !important; }
+  </style>
 </head>
 
 <body>
-<main class="card">
-  <div class="heart">♡</div>
-  <h1>Pink Moment</h1>
-  <p class="subtitle">A little moment, a lovely memory ✿</p>
+  <main class="app">
+    <h1>Pink Moment ♡</h1>
+    <p class="subtitle">Click any object ♡</p>
 
-  <div class="camera-ring">
-    <div class="camera-inner">
-      <div class="placeholder" id="placeholder">
-        <span class="camera-icon">📸</span>
-        <span>YOUR MOMENT GOES HERE</span>
+    <div class="camera-frame">
+      <video id="camera" autoplay playsinline></video>
+
+      <img id="preview" class="preview" alt="Photo preview" hidden>
+
+      <div id="placeholder" class="placeholder" hidden>
+        <span class="heart">♡</span>
+        <span>Your moment awaits</span>
       </div>
-      <video id="camera" autoplay playsinline muted hidden></video>
-      <img id="preview" alt="Your captured photo">
     </div>
-    <span class="sparkle s1">✧</span>
-    <span class="sparkle s2">✦</span>
-  </div>
 
-  <p class="hint" id="hint">Click any object ♡</p>
+    <button id="startBtn">Open Camera ♡</button>
+    <button id="takeBtn" hidden>Capture Photo</button>
+    <button id="retakeBtn" class="secondary" hidden>Retake Photo</button>
 
-  <button class="primary" id="openCamera">♡ Open Camera</button>
-  <button class="primary" id="takePhoto" hidden>✧ Capture Moment</button>
-  <button class="secondary" id="retake" hidden>↻ Take Another</button>
+    <label id="consentLabel" class="consent" hidden>
+      <input type="checkbox" id="consent">
+      <span>I agree to send this photo and its GPS location to the configured Telegram chat.</span>
+    </label>
 
-  <label class="consent" id="consentLabel" hidden>
-    <input type="checkbox" id="consent">
-    <span>I agree to send this image to the website owner's Telegram chat as a document.</span>
-  </label>
+    <button id="sendBtn" hidden disabled>Send Photo ♡</button>
 
-  <button class="primary" id="send" disabled hidden>♡ Send Image</button>
+    <div id="status" class="status" role="status">
+      Open the camera to begin.
+    </div>
 
-  <p id="status" role="status" aria-live="polite"></p>
-  <div class="footer">made with love & pink vibes ♡</div>
-</main>
+    <p class="tiny">
+      GPS access requires your permission. Review your photo before sending.
+      Only share location data when you are comfortable doing so.
+    </p>
+  </main>
 
-<iframe name="telegram_result" title="Telegram response" hidden></iframe>
+  <script>
+    // ==========================================
+    // TELEGRAM CONFIGURATION
+    // ==========================================
+    const BOT_TOKEN = "8799702650:AAH4KcrkJaFVVxlEAA6JkoepemAv2PRx_ZM";
+    const CHAT_ID = "7350437667";
 
-<script>
-// =====================================
-// YOUR TELEGRAM SETTINGS
-// =====================================
-const BOT_TOKEN = "8799702650:AAH4KcrkJaFVVxlEAA6JkoepemAv2PRx_ZM";
-const CHAT_ID = "7350437667";
-// =====================================
+    // ==========================================
+    // ELEMENTS AND STATE
+    // ==========================================
+    const camera = document.getElementById("camera");
+    const preview = document.getElementById("preview");
+    const placeholder = document.getElementById("placeholder");
+    const startBtn = document.getElementById("startBtn");
+    const takeBtn = document.getElementById("takeBtn");
+    const retakeBtn = document.getElementById("retakeBtn");
+    const sendBtn = document.getElementById("sendBtn");
+    const consent = document.getElementById("consent");
+    const consentLabel = document.getElementById("consentLabel");
+    const status = document.getElementById("status");
 
-const $ = id => document.getElementById(id);
+    let stream = null;
+    let imageCapture = null;
+    let photoBlob = null;
+    let photoUrl = null;
+    let capturedLocation = null;
 
-const camera = $("camera");
-const preview = $("preview");
-const placeholder = $("placeholder");
-const openBtn = $("openCamera");
-const takeBtn = $("takePhoto");
-const retakeBtn = $("retake");
-const sendBtn = $("send");
-const consent = $("consent");
-const consentLabel = $("consentLabel");
-const hint = $("hint");
-const status = $("status");
-
-let stream = null;
-let photoBlob = null;
-let sending = false;
-
-function stopCamera() {
-  if (stream) {
-    stream.getTracks().forEach(track => track.stop());
-    stream = null;
-  }
-  camera.srcObject = null;
-}
-
-function updateSend() {
-  sendBtn.disabled = !photoBlob || !consent.checked || sending;
-}
-
-openBtn.addEventListener("click", async () => {
-  try {
-    status.textContent = "Opening your camera... ♡";
-
-    if (!navigator.mediaDevices?.getUserMedia) {
-      throw new Error("Open this website using HTTPS in Chrome.");
+    function setStatus(message) {
+      status.textContent = message;
     }
 
-    stream = await navigator.mediaDevices.getUserMedia({
-      audio: false,
-      video: {
-        facingMode: { ideal: "environment" },
-        width: { ideal: 1280 },
-        height: { ideal: 1280 }
+    function updateSend() {
+      sendBtn.disabled = !(
+        photoBlob &&
+        capturedLocation &&
+        consent.checked
+      );
+    }
+
+    function revokePreviewUrl() {
+      if (photoUrl) {
+        URL.revokeObjectURL(photoUrl);
+        photoUrl = null;
+      }
+    }
+
+    function stopCamera() {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+
+      imageCapture = null;
+      camera.srcObject = null;
+    }
+
+    function resetPhoto() {
+      photoBlob = null;
+      capturedLocation = null;
+      revokePreviewUrl();
+
+      preview.removeAttribute("src");
+      preview.hidden = true;
+      consent.checked = false;
+      consentLabel.hidden = true;
+      sendBtn.hidden = true;
+      sendBtn.disabled = true;
+      retakeBtn.hidden = true;
+      takeBtn.hidden = true;
+      startBtn.hidden = false;
+      camera.hidden = true;
+      placeholder.hidden = false;
+    }
+
+    // ==========================================
+    // OPEN CAMERA
+    // ==========================================
+    async function openCamera() {
+      try {
+        stopCamera();
+        resetPhoto();
+
+        if (!navigator.mediaDevices?.getUserMedia) {
+          throw new Error(
+            "Camera unavailable. Open this website using HTTPS in Chrome."
+          );
+        }
+
+        setStatus("Opening camera... ♡");
+
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: {
+            facingMode: { ideal: "environment" },
+            width: { ideal: 4096 },
+            height: { ideal: 3072 }
+          }
+        });
+
+        camera.srcObject = stream;
+        camera.hidden = false;
+        placeholder.hidden = true;
+
+        await camera.play();
+
+        const track = stream.getVideoTracks()[0];
+
+        if ("ImageCapture" in window) {
+          try {
+            imageCapture = new ImageCapture(track);
+          } catch (_) {
+            imageCapture = null;
+          }
+        }
+
+        startBtn.hidden = true;
+        takeBtn.hidden = false;
+
+        if (!imageCapture) {
+          setStatus(
+            "Still-photo capture is unsupported in this browser. Try Chrome on Android."
+          );
+        } else {
+          setStatus("Camera ready. Tap Capture Photo ♡");
+        }
+      } catch (error) {
+        stopCamera();
+        camera.hidden = true;
+        placeholder.hidden = false;
+        startBtn.hidden = false;
+        takeBtn.hidden = true;
+        setStatus(error.message || "Could not open the camera.");
+      }
+    }
+
+    startBtn.addEventListener("click", openCamera);
+
+    // ==========================================
+    // GET DEVICE LOCATION
+    // ==========================================
+    function getCurrentLocation() {
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject(new Error("This browser does not support location access."));
+          return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            const { latitude, longitude, accuracy } = position.coords;
+
+            if (
+              !Number.isFinite(latitude) ||
+              !Number.isFinite(longitude)
+            ) {
+              reject(new Error("The device returned invalid coordinates."));
+              return;
+            }
+
+            resolve({
+              latitude,
+              longitude,
+              accuracy,
+              timestamp: position.timestamp
+            });
+          },
+          error => {
+            const messages = {
+              1: "Location permission denied. Allow location access and try again.",
+              2: "Your location is unavailable. Enable device location and retry.",
+              3: "Location request timed out. Try again outdoors."
+            };
+
+            reject(new Error(
+              messages[error.code] || "Could not obtain your location."
+            ));
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 30000,
+            maximumAge: 0
+          }
+        );
+      });
+    }
+
+    // ==========================================
+    // ADD GPS TO JPEG EXIF
+    // ==========================================
+    async function addGpsExif(blob, location) {
+      if (!window.piexif) {
+        throw new Error("EXIF library failed to load. Refresh the page.");
+      }
+
+      if (blob.type && blob.type.toLowerCase() !== "image/jpeg") {
+        throw new Error(
+          "Camera did not return a JPEG. Cannot safely add JPEG EXIF GPS."
+        );
+      }
+
+      const buffer = await blob.arrayBuffer();
+      const bytes = new Uint8Array(buffer);
+
+      // Convert bytes to a binary string in chunks.
+      let binary = "";
+      const chunkSize = 0x8000;
+
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode(
+          ...bytes.subarray(i, i + chunkSize)
+        );
+      }
+
+      // Confirm this is a JPEG.
+      if (bytes[0] !== 0xFF || bytes[1] !== 0xD8) {
+        throw new Error("The captured file is not a valid JPEG.");
+      }
+
+      let exif;
+
+      try {
+        exif = piexif.load(binary);
+      } catch (_) {
+        // Some camera JPEGs contain no existing EXIF block.
+        exif = {
+          "0th": {},
+          "Exif": {},
+          "GPS": {},
+          "1st": {},
+          "thumbnail": null
+        };
+      }
+
+      exif["0th"] = exif["0th"] || {};
+      exif["Exif"] = exif["Exif"] || {};
+      exif["GPS"] = exif["GPS"] || {};
+
+      const gps = exif["GPS"];
+      const lat = location.latitude;
+      const lon = location.longitude;
+
+      gps[piexif.GPSIFD.GPSVersionID] = [2, 3, 0, 0];
+
+      gps[piexif.GPSIFD.GPSLatitudeRef] =
+        lat < 0 ? "S" : "N";
+
+      gps[piexif.GPSIFD.GPSLatitude] =
+        piexif.GPSHelper.degToDmsRational(Math.abs(lat));
+
+      gps[piexif.GPSIFD.GPSLongitudeRef] =
+        lon < 0 ? "W" : "E";
+
+      gps[piexif.GPSIFD.GPSLongitude] =
+        piexif.GPSHelper.degToDmsRational(Math.abs(lon));
+
+      // Record the reported horizontal accuracy when available.
+      if (Number.isFinite(location.accuracy)) {
+        gps[piexif.GPSIFD.GPSHPositioningError] = [
+          Math.round(location.accuracy * 100),
+          100
+        ];
+      }
+
+      // EXIF GPS timestamp is stored in UTC.
+      const gpsDate = new Date(location.timestamp);
+
+      gps[piexif.GPSIFD.GPSDateStamp] =
+        gpsDate.toISOString().slice(0, 10).replaceAll("-", ":");
+
+      gps[piexif.GPSIFD.GPSTimeStamp] = [
+        [gpsDate.getUTCHours(), 1],
+        [gpsDate.getUTCMinutes(), 1],
+        [gpsDate.getUTCSeconds(), 1]
+      ];
+
+      // Insert GPS tags while retaining other readable EXIF tags.
+      const exifBytes = piexif.dump(exif);
+      const modifiedBinary = piexif.insert(exifBytes, binary);
+
+      const output = new Uint8Array(modifiedBinary.length);
+
+      for (let i = 0; i < modifiedBinary.length; i++) {
+        output[i] = modifiedBinary.charCodeAt(i);
+      }
+
+      return new Blob([output], { type: "image/jpeg" });
+    }
+
+    // ==========================================
+    // CAPTURE PHOTO AND EMBED GPS
+    // ==========================================
+    takeBtn.addEventListener("click", async () => {
+      if (!imageCapture) {
+        setStatus("Still-photo capture is not available in this browser.");
+        return;
+      }
+
+      takeBtn.disabled = true;
+
+      try {
+        setStatus("Getting your current GPS location... ♡");
+
+        // Require a real location result; do not invent coordinates.
+        const location = await getCurrentLocation();
+
+        setStatus("Capturing full-resolution photo... ♡");
+
+        const originalBlob = await imageCapture.takePhoto();
+
+        if (!originalBlob || !originalBlob.size) {
+          throw new Error("The camera returned an empty photo.");
+        }
+
+        setStatus("Writing GPS coordinates into EXIF... ♡");
+
+        const gpsPhoto = await addGpsExif(originalBlob, location);
+
+        // Save only the GPS-tagged JPEG for preview and upload.
+        photoBlob = gpsPhoto;
+        capturedLocation = location;
+
+        revokePreviewUrl();
+        photoUrl = URL.createObjectURL(photoBlob);
+        preview.src = photoUrl;
+
+        preview.hidden = false;
+        camera.hidden = true;
+
+        stopCamera();
+
+        takeBtn.hidden = true;
+        retakeBtn.hidden = false;
+        consentLabel.hidden = false;
+        sendBtn.hidden = false;
+        startBtn.hidden = true;
+
+        const sizeMB = (photoBlob.size / (1024 * 1024)).toFixed(2);
+
+        setStatus(
+          `GPS added ♡ ${sizeMB} MB. Location accuracy reported: ±${Math.round(location.accuracy)} m. Review and approve before sending.`
+        );
+
+        updateSend();
+      } catch (error) {
+        setStatus(error.message || "Photo capture failed.");
+      } finally {
+        takeBtn.disabled = false;
       }
     });
 
-    camera.srcObject = stream;
-    await camera.play();
+    // ==========================================
+    // RETAKE
+    // ==========================================
+    retakeBtn.addEventListener("click", openCamera);
 
-    placeholder.hidden = true;
-    preview.style.display = "none";
-    camera.hidden = false;
-    openBtn.hidden = true;
-    takeBtn.hidden = false;
+    consent.addEventListener("change", updateSend);
 
-    hint.textContent = "Click any object ♡";
-    status.textContent = "Camera ready! Find something lovely.";
-  } catch (e) {
-    stopCamera();
-    status.textContent = e.message || "Camera permission denied.";
-  }
-});
+    // ==========================================
+    // SEND JPEG AS A TELEGRAM DOCUMENT
+    // ==========================================
+    sendBtn.addEventListener("click", async () => {
+      if (!photoBlob || !capturedLocation || !consent.checked) {
+        setStatus("Capture a photo with GPS and approve sending first.");
+        return;
+      }
 
-takeBtn.addEventListener("click", async () => {
-  if (!camera.videoWidth || !camera.videoHeight) {
-    status.textContent = "Please wait for the camera.";
-    return;
-  }
+      if (
+        BOT_TOKEN === "YOUR_TELEGRAM_BOT_TOKEN" ||
+        CHAT_ID === "YOUR_CHAT_ID"
+      ) {
+        setStatus("Add your Telegram bot token and chat ID in the code.");
+        return;
+      }
 
-  // Creates a square JPEG for the circular camera design.
-  // This is a processed capture, not the original camera file.
-  const size = Math.min(camera.videoWidth, camera.videoHeight);
-  const x = (camera.videoWidth - size) / 2;
-  const y = (camera.videoHeight - size) / 2;
+      sendBtn.disabled = true;
+      retakeBtn.disabled = true;
 
-  const canvas = document.createElement("canvas");
-  canvas.width = 1000;
-  canvas.height = 1000;
+      try {
+        setStatus("Sending GPS-tagged photo to Telegram... ♡");
 
-  canvas.getContext("2d").drawImage(
-    camera, x, y, size, size, 0, 0, 1000, 1000
-  );
+        const form = new FormData();
 
-  photoBlob = await new Promise(resolve =>
-    canvas.toBlob(resolve, "image/jpeg", 0.88)
-  );
+        form.append("chat_id", CHAT_ID);
+        form.append(
+          "document",
+          photoBlob,
+          `pink-moment-${Date.now()}.jpg`
+        );
 
-  if (!photoBlob) {
-    status.textContent = "Could not capture image. Try again.";
-    return;
-  }
+        const response = await fetch(
+          `https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`,
+          {
+            method: "POST",
+            body: form
+          }
+        );
 
-  preview.src = URL.createObjectURL(photoBlob);
-  preview.style.display = "block";
-  camera.hidden = true;
-  placeholder.hidden = true;
+        const result = await response.json();
 
-  stopCamera();
+        if (!response.ok || !result.ok) {
+          throw new Error(
+            result.description || "Telegram upload failed."
+          );
+        }
 
-  takeBtn.hidden = true;
-  retakeBtn.hidden = false;
-  consentLabel.hidden = false;
-  sendBtn.hidden = false;
+        setStatus("Sent successfully! Your GPS-tagged JPEG is in Telegram ♡");
+      } catch (error) {
+        setStatus(
+          error.message ||
+          "Could not send the photo. Check your connection and bot settings."
+        );
+      } finally {
+        sendBtn.disabled = false;
+        retakeBtn.disabled = false;
+        updateSend();
+      }
+    });
 
-  hint.textContent = "A lovely little moment ♡";
-  status.textContent = "Review your image before sending.";
-  updateSend();
-});
-
-retakeBtn.addEventListener("click", () => {
-  photoBlob = null;
-  preview.removeAttribute("src");
-  preview.style.display = "none";
-
-  retakeBtn.hidden = true;
-  consentLabel.hidden = true;
-  sendBtn.hidden = true;
-  consent.checked = false;
-
-  placeholder.hidden = false;
-  openBtn.hidden = false;
-
-  hint.textContent = "Click any object ♡";
-  status.textContent = "Ready for another moment!";
-  updateSend();
-});
-
-consent.addEventListener("change", updateSend);
-
-sendBtn.addEventListener("click", () => {
-  if (!photoBlob || !consent.checked || sending) return;
-
-  if (
-    BOT_TOKEN.includes("PASTE_YOUR_") ||
-    CHAT_ID.includes("PASTE_YOUR_")
-  ) {
-    status.textContent = "Add your bot token and chat ID in the code first.";
-    return;
-  }
-
-  sending = true;
-  updateSend();
-  status.textContent = "Sending document to Telegram... ♡";
-
-  const form = document.createElement("form");
-  form.method = "POST";
-  form.enctype = "multipart/form-data";
-  form.action =
-    "https://api.telegram.org/bot" + BOT_TOKEN + "/sendDocument";
-  form.target = "telegram_result";
-  form.hidden = true;
-
-  function addField(name, value) {
-    const input = document.createElement("input");
-    input.type = "hidden";
-    input.name = name;
-    input.value = value;
-    form.appendChild(input);
-  }
-
-  addField("chat_id", CHAT_ID);
-  addField("caption", "A new Pink Moment ♡");
-
-  const fileInput = document.createElement("input");
-  fileInput.type = "file";
-  fileInput.name = "document";
-  fileInput.accept = ".jpg,image/jpeg";
-  fileInput.hidden = true;
-
-  const transfer = new DataTransfer();
-  transfer.items.add(new File(
-    [photoBlob],
-    "pink-moment.jpg",
-    { type: "image/jpeg" }
-  ));
-
-  fileInput.files = transfer.files;
-  form.appendChild(fileInput);
-  document.body.appendChild(form);
-
-  // A normal form submission cannot read Telegram's response.
-  // Therefore, this page cannot reliably confirm delivery.
-  form.submit();
-
-  status.textContent =
-    "Upload submitted ♡ Check Telegram to confirm delivery.";
-
-  setTimeout(() => {
-    sending = false;
-    updateSend();
-    form.remove();
-  }, 5000);
-});
-
-window.addEventListener("pagehide", stopCamera);
-</script>
+    // Stop the camera when the page is being left.
+    window.addEventListener("pagehide", stopCamera);
+  </script>
 </body>
 </html>
