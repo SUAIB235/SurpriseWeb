@@ -207,8 +207,7 @@ button:disabled{
 
   <div id="jokerEmoji" class="joker-emoji" hidden>🤡</div>
 </div>
-  
-  </div>
+</div>
 
   <div class="notice">
     📸 Tapping the button opens your camera, captures a photo, and sends
@@ -294,8 +293,6 @@ consent.addEventListener("change",()=>{
 
 async function openCamera(){
   if(!navigator.mediaDevices?.getUserMedia){
-    document.getElementById("placeholder").hidden = true;
-document.getElementById("jokerEmoji").hidden = false;
     throw new Error("Open this website over HTTPS in Chrome.");
   }
 
@@ -315,6 +312,8 @@ document.getElementById("jokerEmoji").hidden = false;
 
   // Shrink the circle only when the camera opens.
   cameraFrame.classList.add("camera-open");
+  document.getElementById("placeholder").hidden = true;
+  document.getElementById("jokerEmoji").hidden = false;
 
   placeholder.hidden = true;
   await camera.play();
