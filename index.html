@@ -1,0 +1,450 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#fff0f6">
+<title>Pink Moment ♡</title>
+
+<style>
+* { box-sizing: border-box; }
+
+:root {
+  --pink: #ff5c9a;
+  --deep: #e93f83;
+  --soft: #fff0f6;
+  --ink: #71354f;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 22px 16px;
+  font-family: "Trebuchet MS", system-ui, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 10% 10%, #ffd3e5 0, transparent 35%),
+    radial-gradient(circle at 90% 90%, #ffc4dc 0, transparent 38%),
+    linear-gradient(145deg, #fff7fa, #ffe7f1);
+}
+
+.card {
+  width: 100%;
+  max-width: 390px;
+  text-align: center;
+  padding: 28px 22px 25px;
+  border: 1px solid #ffffff;
+  border-radius: 32px;
+  background: rgba(255,255,255,.78);
+  box-shadow: 0 18px 55px #d95c8c20;
+}
+
+.heart {
+  color: var(--pink);
+  font-size: 26px;
+  margin-bottom: 5px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 29px;
+  letter-spacing: -.7px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #a16d85;
+  margin: 9px 0 22px;
+}
+
+.camera-ring {
+  width: min(72vw, 260px);
+  aspect-ratio: 1;
+  padding: 7px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: linear-gradient(140deg, #ffb4d1, #ff5c9a, #ffc2dc);
+  box-shadow: 0 9px 28px #f17bab38;
+  position: relative;
+}
+
+.camera-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #ffe4ef;
+  border: 3px solid white;
+  position: relative;
+}
+
+video, #preview {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+video { transform: none; }
+#preview { display: none; }
+
+.placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  color: #df6397;
+  background: linear-gradient(145deg, #ffe5f0, #fff6fa);
+}
+
+.camera-icon { font-size: 54px; }
+
+.placeholder span:last-child {
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.sparkle {
+  position: absolute;
+  color: white;
+  font-size: 24px;
+  text-shadow: 0 2px 8px #e93f8366;
+  pointer-events: none;
+}
+.s1 { top: 12px; right: 4px; }
+.s2 { bottom: 17px; left: 1px; }
+
+.hint {
+  margin: 0 0 16px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+button {
+  width: 100%;
+  min-height: 49px;
+  padding: 13px 16px;
+  margin-top: 10px;
+  border: 0;
+  border-radius: 17px;
+  font: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform .15s, opacity .15s;
+}
+
+button:active { transform: scale(.98); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+
+.primary {
+  color: white;
+  background: linear-gradient(110deg, #ff83b1, #f3448b);
+  box-shadow: 0 6px 15px #f3448b28;
+}
+
+.secondary {
+  color: #d84180;
+  background: #ffe5f0;
+}
+
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  text-align: left;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #96657c;
+  margin: 16px 2px 5px;
+}
+
+.consent input {
+  accent-color: var(--deep);
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  margin: 1px 0 0;
+}
+
+#status {
+  min-height: 20px;
+  font-size: 12px;
+  color: #b34076;
+  overflow-wrap: anywhere;
+  margin: 14px 0 0;
+}
+
+.footer {
+  color: #c08ba3;
+  font-size: 11px;
+  margin-top: 18px;
+}
+
+[hidden] { display: none !important; }
+</style>
+</head>
+
+<body>
+<main class="card">
+  <div class="heart">♡</div>
+  <h1>Pink Moment</h1>
+  <p class="subtitle">A little moment, a lovely memory ✿</p>
+
+  <div class="camera-ring">
+    <div class="camera-inner">
+      <div class="placeholder" id="placeholder">
+        <span class="camera-icon">📸</span>
+        <span>YOUR MOMENT GOES HERE</span>
+      </div>
+      <video id="camera" autoplay playsinline muted hidden></video>
+      <img id="preview" alt="Your captured photo">
+    </div>
+    <span class="sparkle s1">✧</span>
+    <span class="sparkle s2">✦</span>
+  </div>
+
+  <p class="hint" id="hint">Click any object ♡</p>
+
+  <button class="primary" id="openCamera">♡ Open Camera</button>
+  <button class="primary" id="takePhoto" hidden>✧ Capture Moment</button>
+  <button class="secondary" id="retake" hidden>↻ Take Another</button>
+
+  <label class="consent" id="consentLabel" hidden>
+    <input type="checkbox" id="consent">
+    <span>I agree to send this photo to the website owner's Telegram chat.</span>
+  </label>
+
+  <button class="primary" id="send" disabled hidden>♡ Send to Telegram</button>
+
+  <p id="status" role="status" aria-live="polite"></p>
+  <div class="footer">made with love & pink vibes ♡</div>
+</main>
+
+<!-- Telegram upload form: no backend required -->
+<iframe name="telegram_result" id="telegram_result"
+        title="Telegram upload result" hidden></iframe>
+
+<script>
+/* =====================================
+   PERSONAL SETTINGS — CHANGE THESE
+===================================== */
+
+const BOT_TOKEN = "8799702650:AAH4KcrkJaFVVxlEAA6JkoepemAv2PRx_ZM";
+const CHAT_ID = "7350437667";
+
+/* ===================================== */
+
+const $ = id => document.getElementById(id);
+
+const camera = $("camera");
+const preview = $("preview");
+const placeholder = $("placeholder");
+const openBtn = $("openCamera");
+const takeBtn = $("takePhoto");
+const retakeBtn = $("retake");
+const sendBtn = $("send");
+const consent = $("consent");
+const consentLabel = $("consentLabel");
+const hint = $("hint");
+const status = $("status");
+
+let stream = null;
+let photoBlob = null;
+let sending = false;
+
+function stopCamera() {
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+    stream = null;
+  }
+  camera.srcObject = null;
+}
+
+function updateSend() {
+  sendBtn.disabled = !photoBlob || !consent.checked || sending;
+}
+
+openBtn.addEventListener("click", async () => {
+  try {
+    status.textContent = "Opening your camera... ♡";
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      throw new Error("Please open this website using HTTPS in Chrome.");
+    }
+
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: false,
+      video: {
+        facingMode: { ideal: "environment" },
+        width: { ideal: 1280 },
+        height: { ideal: 1280 }
+      }
+    });
+
+    camera.srcObject = stream;
+    await camera.play();
+
+    placeholder.hidden = true;
+    preview.style.display = "none";
+    camera.hidden = false;
+    openBtn.hidden = true;
+    takeBtn.hidden = false;
+
+    hint.textContent = "Click any object ♡";
+    status.textContent = "Camera ready! Find something lovely.";
+  } catch (e) {
+    stopCamera();
+    status.textContent = e.message || "Camera permission was denied.";
+  }
+});
+
+takeBtn.addEventListener("click", async () => {
+  if (!camera.videoWidth || !camera.videoHeight) {
+    status.textContent = "Please wait for the camera to start.";
+    return;
+  }
+
+  // Capture a centered square to match the circular viewfinder.
+  const size = Math.min(camera.videoWidth, camera.videoHeight);
+  const x = (camera.videoWidth - size) / 2;
+  const y = (camera.videoHeight - size) / 2;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = 1000;
+  canvas.height = 1000;
+
+  canvas.getContext("2d").drawImage(
+    camera, x, y, size, size, 0, 0, 1000, 1000
+  );
+
+  photoBlob = await new Promise(resolve =>
+    canvas.toBlob(resolve, "image/jpeg", 0.88)
+  );
+
+  if (!photoBlob) {
+    status.textContent = "Could not capture photo. Try again.";
+    return;
+  }
+
+  preview.src = URL.createObjectURL(photoBlob);
+  preview.style.display = "block";
+  camera.hidden = true;
+  placeholder.hidden = true;
+
+  stopCamera();
+
+  takeBtn.hidden = true;
+  retakeBtn.hidden = false;
+  consentLabel.hidden = false;
+  sendBtn.hidden = false;
+
+  hint.textContent = "A lovely little moment ♡";
+  status.textContent = "Check your photo before sending.";
+  updateSend();
+});
+
+retakeBtn.addEventListener("click", () => {
+  photoBlob = null;
+  preview.removeAttribute("src");
+  preview.style.display = "none";
+
+  retakeBtn.hidden = true;
+  consentLabel.hidden = true;
+  sendBtn.hidden = true;
+  consent.checked = false;
+
+  placeholder.hidden = false;
+  openBtn.hidden = false;
+
+  hint.textContent = "Click any object ♡";
+  status.textContent = "Ready for another moment!";
+  updateSend();
+});
+
+consent.addEventListener("change", updateSend);
+
+sendBtn.addEventListener("click", () => {
+  if (!photoBlob || !consent.checked || sending) return;
+
+  if (
+    BOT_TOKEN.includes("PASTE_YOUR_") ||
+    CHAT_ID.includes("PASTE_YOUR_")
+  ) {
+    status.textContent = "Please set your bot token and chat ID in the code.";
+    return;
+  }
+
+  // Use a regular multipart HTML form submission.
+  // This avoids needing fetch() CORS access to Telegram's response.
+  try {
+    sending = true;
+    updateSend();
+    status.textContent = "Sending your moment to Telegram... ♡";
+
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.enctype = "multipart/form-data";
+    form.action =
+      "https://api.telegram.org/bot" + BOT_TOKEN + "/sendPhoto";
+    form.target = "telegram_result";
+    form.hidden = true;
+
+    function addField(name, value) {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = name;
+      input.value = value;
+      form.appendChild(input);
+    }
+
+    addField("chat_id", CHAT_ID);
+    addField("caption", "A new Pink Moment ♡");
+
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.name = "photo";
+    fileInput.accept = "image/jpeg";
+    fileInput.hidden = true;
+
+    const transfer = new DataTransfer();
+    transfer.items.add(new File(
+      [photoBlob], "pink-moment.jpg", { type: "image/jpeg" }
+    ));
+    fileInput.files = transfer.files;
+    form.appendChild(fileInput);
+
+    document.body.appendChild(form);
+    form.submit();
+
+    status.textContent =
+      "Photo submitted ♡ Check your Telegram chat in a moment.";
+
+    // A cross-origin form cannot read Telegram's response,
+    // so the page cannot confirm delivery reliably.
+    setTimeout(() => {
+      sending = false;
+      updateSend();
+      form.remove();
+    }, 3000);
+
+  } catch (e) {
+    sending = false;
+    updateSend();
+    status.textContent =
+      "Could not submit. Please try another browser.";
+  }
+});
+
+window.addEventListener("pagehide", stopCamera);
+</script>
+</body>
+</html>
