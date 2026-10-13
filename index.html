@@ -44,46 +44,63 @@ h1{
   font-size:14px;
   margin:0 0 22px;
 }
-
-/* Original decorative circle size */
-.frame{
-  width:min(78vw,290px);
-  aspect-ratio:1;
-  margin:0 auto 20px;
-  border-radius:50%;
-  overflow:hidden;
-  background:#f8d8e9;
-  border:6px solid white;
-  outline:2px solid #f0a3ca;
-  box-shadow:0 8px 24px #c96ba333;
-  transition:width .3s ease;
+  
+/* Main decorative circle */
+.frame {
+  width: min(78vw, 290px);
+  aspect-ratio: 1;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f8d8e9;
+  border: 6px solid white;
+  outline: 2px solid #f0a3ca;
+  box-shadow: 0 8px 24px #c96ba333;
+  transition: width .3s ease;
+  position: relative;
 }
 
-/* Smaller circle only when camera opens */
-.frame.camera-open{
-  width:min(15vw,50px);
+/* Tiny circle when camera opens */
+.frame.camera-open {
+  width: 50px;
+  height: 50px;
+  aspect-ratio: 1;
+  margin: 0 auto 20px;
+  border-width: 2px;
+  outline-width: 1px;
 }
 
-video,.preview{
-  width:100%;
-  height:100%;
-  object-fit:cover;
+/* Hide the original placeholder in the tiny frame */
+.frame.camera-open .placeholder {
+  display: none !important;
 }
+
+/* Joker emoji fills only the tiny circle */
 .joker-emoji {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+  display: flex;
   align-items: center;
   justify-content: center;
   font-size: 32px;
   background: #f8d8e9;
-  z-index: 10;
   border-radius: 50%;
+  z-index: 10;
 }
 
-.joker-emoji:not([hidden]) {
-  display: flex;
+/* Keep the emoji hidden until enabled */
+.joker-emoji[hidden] {
+  display: none !important;
+}
+
+video,
+.preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 }
 .placeholder{
   height:100%;
