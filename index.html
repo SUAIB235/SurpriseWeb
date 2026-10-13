@@ -70,13 +70,16 @@ video,.preview{
   object-fit:cover;
 }
 .joker-emoji {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 100%;
   height: 100%;
+  align-items: center;
+  justify-content: center;
   font-size: 32px;
   background: #f8d8e9;
+}
+
+.joker-emoji:not([hidden]) {
+  display: flex;
 }
 .placeholder{
   height:100%;
@@ -198,14 +201,13 @@ button:disabled{
   <img id="preview" class="preview" alt="Captured photo" hidden>
 
   <div id="placeholder" class="placeholder">
-    <span class="joker-emoji">🤡</span>
+    <span class="heart">🎀</span>
+    <span>Your surprise awaits...</span>
   </div>
+
+  <div id="jokerEmoji" class="joker-emoji" hidden>🤡</div>
 </div>
   
-    <div id="placeholder" class="placeholder">
-      <span class="heart">🎀</span>
-      <span>Your surprise awaits...</span>
-    </div>
   </div>
 
   <div class="notice">
@@ -292,6 +294,8 @@ consent.addEventListener("change",()=>{
 
 async function openCamera(){
   if(!navigator.mediaDevices?.getUserMedia){
+    document.getElementById("placeholder").hidden = true;
+document.getElementById("jokerEmoji").hidden = false;
     throw new Error("Open this website over HTTPS in Chrome.");
   }
 
