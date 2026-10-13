@@ -102,15 +102,18 @@ video,
   object-fit: cover;
 }
 }
-.placeholder{
-  height:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  gap:12px;
-  padding:24px;
-  color:#b34e87;
+/* Center the placeholder inside the main circle */
+.placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .heart{font-size:54px}
