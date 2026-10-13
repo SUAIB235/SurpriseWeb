@@ -70,12 +70,16 @@ video,.preview{
   object-fit:cover;
 }
 .joker-emoji {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   align-items: center;
   justify-content: center;
   font-size: 32px;
   background: #f8d8e9;
+  z-index: 10;
+  border-radius: 50%;
 }
 
 .joker-emoji:not([hidden]) {
@@ -206,7 +210,6 @@ button:disabled{
   </div>
 
   <div id="jokerEmoji" class="joker-emoji" hidden>🤡</div>
-</div>
 </div>
 
   <div class="notice">
