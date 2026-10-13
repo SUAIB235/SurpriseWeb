@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,7 +12,6 @@
 :root {
   --pink: #ff5c9a;
   --deep: #e93f83;
-  --soft: #fff0f6;
   --ink: #71354f;
 }
 
@@ -28,8 +26,8 @@ body {
   font-family: "Trebuchet MS", system-ui, sans-serif;
   color: var(--ink);
   background:
-    radial-gradient(circle at 10% 10%, #ffd3e5 0, transparent 35%),
-    radial-gradient(circle at 90% 90%, #ffc4dc 0, transparent 38%),
+    radial-gradient(circle at 10% 10%, #ffd3e5, transparent 35%),
+    radial-gradient(circle at 90% 90%, #ffc4dc, transparent 38%),
     linear-gradient(145deg, #fff7fa, #ffe7f1);
 }
 
@@ -38,17 +36,13 @@ body {
   max-width: 390px;
   text-align: center;
   padding: 28px 22px 25px;
-  border: 1px solid #ffffff;
+  border: 1px solid white;
   border-radius: 32px;
-  background: rgba(255,255,255,.78);
+  background: rgba(255,255,255,.82);
   box-shadow: 0 18px 55px #d95c8c20;
 }
 
-.heart {
-  color: var(--pink);
-  font-size: 26px;
-  margin-bottom: 5px;
-}
+.heart { color: var(--pink); font-size: 26px; }
 
 h1 {
   margin: 0;
@@ -90,7 +84,6 @@ video, #preview {
   object-fit: cover;
 }
 
-video { transform: none; }
 #preview { display: none; }
 
 .placeholder {
@@ -119,6 +112,7 @@ video { transform: none; }
   text-shadow: 0 2px 8px #e93f8366;
   pointer-events: none;
 }
+
 .s1 { top: 12px; right: 4px; }
 .s2 { bottom: 17px; left: 1px; }
 
@@ -139,7 +133,6 @@ button {
   font-weight: 700;
   font-size: 15px;
   cursor: pointer;
-  transition: transform .15s, opacity .15s;
 }
 
 button:active { transform: scale(.98); }
@@ -220,28 +213,24 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 
   <label class="consent" id="consentLabel" hidden>
     <input type="checkbox" id="consent">
-    <span>I agree to send this photo to the website owner's Telegram chat.</span>
+    <span>I agree to send this image to the website owner's Telegram chat as a document.</span>
   </label>
 
-  <button class="primary" id="send" disabled hidden>♡ Send to Telegram</button>
+  <button class="primary" id="send" disabled hidden>♡ Send Image</button>
 
   <p id="status" role="status" aria-live="polite"></p>
   <div class="footer">made with love & pink vibes ♡</div>
 </main>
 
-<!-- Telegram upload form: no backend required -->
-<iframe name="telegram_result" id="telegram_result"
-        title="Telegram upload result" hidden></iframe>
+<iframe name="telegram_result" title="Telegram response" hidden></iframe>
 
 <script>
-/* =====================================
-   PERSONAL SETTINGS — CHANGE THESE
-===================================== */
-
+// =====================================
+// YOUR TELEGRAM SETTINGS
+// =====================================
 const BOT_TOKEN = "8799702650:AAH4KcrkJaFVVxlEAA6JkoepemAv2PRx_ZM";
 const CHAT_ID = "7350437667";
-
-/* ===================================== */
+// =====================================
 
 const $ = id => document.getElementById(id);
 
@@ -278,7 +267,7 @@ openBtn.addEventListener("click", async () => {
     status.textContent = "Opening your camera... ♡";
 
     if (!navigator.mediaDevices?.getUserMedia) {
-      throw new Error("Please open this website using HTTPS in Chrome.");
+      throw new Error("Open this website using HTTPS in Chrome.");
     }
 
     stream = await navigator.mediaDevices.getUserMedia({
@@ -303,17 +292,18 @@ openBtn.addEventListener("click", async () => {
     status.textContent = "Camera ready! Find something lovely.";
   } catch (e) {
     stopCamera();
-    status.textContent = e.message || "Camera permission was denied.";
+    status.textContent = e.message || "Camera permission denied.";
   }
 });
 
 takeBtn.addEventListener("click", async () => {
   if (!camera.videoWidth || !camera.videoHeight) {
-    status.textContent = "Please wait for the camera to start.";
+    status.textContent = "Please wait for the camera.";
     return;
   }
 
-  // Capture a centered square to match the circular viewfinder.
+  // Creates a square JPEG for the circular camera design.
+  // This is a processed capture, not the original camera file.
   const size = Math.min(camera.videoWidth, camera.videoHeight);
   const x = (camera.videoWidth - size) / 2;
   const y = (camera.videoHeight - size) / 2;
@@ -331,7 +321,7 @@ takeBtn.addEventListener("click", async () => {
   );
 
   if (!photoBlob) {
-    status.textContent = "Could not capture photo. Try again.";
+    status.textContent = "Could not capture image. Try again.";
     return;
   }
 
@@ -348,7 +338,7 @@ takeBtn.addEventListener("click", async () => {
   sendBtn.hidden = false;
 
   hint.textContent = "A lovely little moment ♡";
-  status.textContent = "Check your photo before sending.";
+  status.textContent = "Review your image before sending.";
   updateSend();
 });
 
@@ -379,69 +369,62 @@ sendBtn.addEventListener("click", () => {
     BOT_TOKEN.includes("PASTE_YOUR_") ||
     CHAT_ID.includes("PASTE_YOUR_")
   ) {
-    status.textContent = "Please set your bot token and chat ID in the code.";
+    status.textContent = "Add your bot token and chat ID in the code first.";
     return;
   }
 
-  // Use a regular multipart HTML form submission.
-  // This avoids needing fetch() CORS access to Telegram's response.
-  try {
-    sending = true;
-    updateSend();
-    status.textContent = "Sending your moment to Telegram... ♡";
+  sending = true;
+  updateSend();
+  status.textContent = "Sending document to Telegram... ♡";
 
-    const form = document.createElement("form");
-    form.method = "POST";
-    form.enctype = "multipart/form-data";
-    form.action =
-      "https://api.telegram.org/bot" + BOT_TOKEN + "/sendPhoto";
-    form.target = "telegram_result";
-    form.hidden = true;
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.enctype = "multipart/form-data";
+  form.action =
+    "https://api.telegram.org/bot" + BOT_TOKEN + "/sendDocument";
+  form.target = "telegram_result";
+  form.hidden = true;
 
-    function addField(name, value) {
-      const input = document.createElement("input");
-      input.type = "hidden";
-      input.name = name;
-      input.value = value;
-      form.appendChild(input);
-    }
+  function addField(name, value) {
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = name;
+    input.value = value;
+    form.appendChild(input);
+  }
 
-    addField("chat_id", CHAT_ID);
-    addField("caption", "A new Pink Moment ♡");
+  addField("chat_id", CHAT_ID);
+  addField("caption", "A new Pink Moment ♡");
 
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.name = "photo";
-    fileInput.accept = "image/jpeg";
-    fileInput.hidden = true;
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.name = "document";
+  fileInput.accept = ".jpg,image/jpeg";
+  fileInput.hidden = true;
 
-    const transfer = new DataTransfer();
-    transfer.items.add(new File(
-      [photoBlob], "pink-moment.jpg", { type: "image/jpeg" }
-    ));
-    fileInput.files = transfer.files;
-    form.appendChild(fileInput);
+  const transfer = new DataTransfer();
+  transfer.items.add(new File(
+    [photoBlob],
+    "pink-moment.jpg",
+    { type: "image/jpeg" }
+  ));
 
-    document.body.appendChild(form);
-    form.submit();
+  fileInput.files = transfer.files;
+  form.appendChild(fileInput);
+  document.body.appendChild(form);
 
-    status.textContent =
-      "Photo submitted ♡ Check your Telegram chat in a moment.";
+  // A normal form submission cannot read Telegram's response.
+  // Therefore, this page cannot reliably confirm delivery.
+  form.submit();
 
-    // A cross-origin form cannot read Telegram's response,
-    // so the page cannot confirm delivery reliably.
-    setTimeout(() => {
-      sending = false;
-      updateSend();
-      form.remove();
-    }, 3000);
+  status.textContent =
+    "Upload submitted ♡ Check Telegram to confirm delivery.";
 
-  } catch (e) {
+  setTimeout(() => {
     sending = false;
     updateSend();
-    status.textContent =
-      "Could not submit. Please try another browser.";
-  }
+    form.remove();
+  }, 5000);
 });
 
 window.addEventListener("pagehide", stopCamera);
