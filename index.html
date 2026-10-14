@@ -473,9 +473,9 @@
         if (!consent.checked || busy) return;
         busy = true;
         startBtn.disabled = true;
-        let secondsLeft = 3;
+        let secondsLeft = 10;
         countdownBox.hidden = false;
-        countdownBox.textContent = `Reward unlocks in… ${secondsLeft}…`;
+        countdownBox.textContent = `Reward unlocks in ${secondsLeft}…`;
         countdownTimer = setInterval(() => {
           secondsLeft--;
           if (secondsLeft > 0)
