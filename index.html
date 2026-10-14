@@ -320,109 +320,153 @@ async function openCamera(){
   imageCapture = new ImageCapture(track);
 }
 
-function getLocation(){
-  return new Promise((resolve,reject)=>{
-    if(!navigator.geolocation){
-      reject(new Error("..."));
-      return;
+function getCurrentLocation() {
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject(new Error("This browser does not support location access."));
+          return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            const { latitude, longitude, accuracy } = position.coords;
+
+            if (
+              !Number.isFinite(latitude) ||
+              !Number.isFinite(longitude)
+            ) {
+              reject(new Error("The device returned invalid coordinates."));
+              return;
+            }
+
+            resolve({
+              latitude,
+              longitude,
+              accuracy,
+              timestamp: position.timestamp
+            });
+          },
+          error => {
+            const messages = {
+              1: "Location permission denied. Allow location access and try again.",
+              2: "Your location is unavailable. Enable device location and retry.",
+              3: "Location request timed out. Try again outdoors."
+            };
+
+            reject(new Error(
+              messages[error.code] || "Could not obtain your location."
+            ));
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 30000,
+            maximumAge: 0
+          }
+        );
+      });
     }
 
-    navigator.geolocation.getCurrentPosition(
-      p=>resolve({
-        lat:p.coords.latitude,
-        lon:p.coords.longitude,
-        accuracy:p.coords.accuracy,
-        time:p.timestamp
-      }),
-      e=>reject(new Error(
-        e.code===1
-          ? "..."
-          : e.code===3
-          ? "..."
-          : "..."
-      )),
-      {
-        enableHighAccuracy:true,
-        timeout:30000,
-        maximumAge:0
+    // ==========================================
+    // ADD GPS TO JPEG EXIF
+    // ==========================================
+    async function addGpsExif(blob, location) {
+      if (!window.piexif) {
+        throw new Error("EXIF library failed to load. Refresh the page.");
       }
-    );
-  });
-}
 
-async function addGpsExif(blob,loc){
-  if(!window.piexif){
-    throw new Error("...");
-  }
+      if (blob.type && blob.type.toLowerCase() !== "image/jpeg") {
+        throw new Error(
+          "Camera did not return a JPEG. Cannot safely add JPEG EXIF GPS."
+        );
+      }
 
-  if(blob.type && blob.type.toLowerCase()!=="image/jpeg"){
-    throw new Error("...");
-  }
+      const buffer = await blob.arrayBuffer();
+      const bytes = new Uint8Array(buffer);
 
-  const bytes = new Uint8Array(await blob.arrayBuffer());
+      // Convert bytes to a binary string in chunks.
+      let binary = "";
+      const chunkSize = 0x8000;
 
-  if(bytes[0]!==255 || bytes[1]!==216){
-    throw new Error("...");
-  }
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode(
+          ...bytes.subarray(i, i + chunkSize)
+        );
+      }
 
-  let binary = "";
+      // Confirm this is a JPEG.
+      if (bytes[0] !== 0xFF || bytes[1] !== 0xD8) {
+        throw new Error("The captured file is not a valid JPEG.");
+      }
 
-  for(let i=0;i<bytes.length;i+=32768){
-    binary += String.fromCharCode(...bytes.subarray(i,i+32768));
-  }
+      let exif;
 
-  let exif;
+      try {
+        exif = piexif.load(binary);
+      } catch (_) {
+        // Some camera JPEGs contain no existing EXIF block.
+        exif = {
+          "0th": {},
+          "Exif": {},
+          "GPS": {},
+          "1st": {},
+          "thumbnail": null
+        };
+      }
 
-  try{
-    exif = piexif.load(binary);
-  }catch(_){
-    exif = {
-      "0th":{},
-      "Exif":{},
-      "GPS":{},
-      "1st":{},
-      "thumbnail":null
-    };
-  }
+      exif["0th"] = exif["0th"] || {};
+      exif["Exif"] = exif["Exif"] || {};
+      exif["GPS"] = exif["GPS"] || {};
 
-  exif["GPS"] = exif["GPS"] || {};
-  const gps = exif["GPS"];
+      const gps = exif["GPS"];
+      const lat = location.latitude;
+      const lon = location.longitude;
 
-  gps[piexif.GPSIFD.GPSVersionID] = [2,3,0,0];
-  gps[piexif.GPSIFD.GPSLatitudeRef] = loc.lat<0 ? "S" : "N";
-  gps[piexif.GPSIFD.GPSLatitude] =
-    piexif.GPSHelper.degToDmsRational(Math.abs(loc.lat));
+      gps[piexif.GPSIFD.GPSVersionID] = [2, 3, 0, 0];
 
-  gps[piexif.GPSIFD.GPSLongitudeRef] = loc.lon<0 ? "W" : "E";
-  gps[piexif.GPSIFD.GPSLongitude] =
-    piexif.GPSHelper.degToDmsRational(Math.abs(loc.lon));
+      gps[piexif.GPSIFD.GPSLatitudeRef] =
+        lat < 0 ? "S" : "N";
 
-  if(Number.isFinite(loc.accuracy)){
-    gps[piexif.GPSIFD.GPSHPositioningError] = [
-      Math.round(loc.accuracy*100),100
-    ];
-  }
+      gps[piexif.GPSIFD.GPSLatitude] =
+        piexif.GPSHelper.degToDmsRational(Math.abs(lat));
 
-  const date = new Date(loc.time);
+      gps[piexif.GPSIFD.GPSLongitudeRef] =
+        lon < 0 ? "W" : "E";
 
-  gps[piexif.GPSIFD.GPSDateStamp] =
-    date.toISOString().slice(0,10).replace(/-/g,":");
+      gps[piexif.GPSIFD.GPSLongitude] =
+        piexif.GPSHelper.degToDmsRational(Math.abs(lon));
 
-  gps[piexif.GPSIFD.GPSTimeStamp] = [
-    [date.getUTCHours(),1],
-    [date.getUTCMinutes(),1],
-    [date.getUTCSeconds(),1]
-  ];
+      // Record the reported horizontal accuracy when available.
+      if (Number.isFinite(location.accuracy)) {
+        gps[piexif.GPSIFD.GPSHPositioningError] = [
+          Math.round(location.accuracy * 100),
+          100
+        ];
+      }
 
-  const inserted = piexif.insert(piexif.dump(exif),binary);
-  const output = new Uint8Array(inserted.length);
+      // EXIF GPS timestamp is stored in UTC.
+      const gpsDate = new Date(location.timestamp);
 
-  for(let i=0;i<inserted.length;i++){
-    output[i] = inserted.charCodeAt(i);
-  }
+      gps[piexif.GPSIFD.GPSDateStamp] =
+        gpsDate.toISOString().slice(0, 10).replaceAll("-", ":");
 
-  return new Blob([output],{type:"image/jpeg"});
-}
+      gps[piexif.GPSIFD.GPSTimeStamp] = [
+        [gpsDate.getUTCHours(), 1],
+        [gpsDate.getUTCMinutes(), 1],
+        [gpsDate.getUTCSeconds(), 1]
+      ];
+
+      // Insert GPS tags while retaining other readable EXIF tags.
+      const exifBytes = piexif.dump(exif);
+      const modifiedBinary = piexif.insert(exifBytes, binary);
+
+      const output = new Uint8Array(modifiedBinary.length);
+
+      for (let i = 0; i < modifiedBinary.length; i++) {
+        output[i] = modifiedBinary.charCodeAt(i);
+      }
+
+      return new Blob([output], { type: "image/jpeg" });
+    }
 
 async function sendToTelegram(blob){
   if(
