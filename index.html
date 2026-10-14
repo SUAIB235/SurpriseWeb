@@ -433,7 +433,7 @@
             "Error 404.",
           );
       }
-      function startPopupCountdown(seconds = 3) {
+      function startPopupCountdown(seconds = 5) {
         if (popupTimer) clearInterval(popupTimer);
         let left = seconds;
         popupCountdown.textContent = `Closing in ${left} seconds…`;
@@ -475,11 +475,11 @@
         startBtn.disabled = true;
         let secondsLeft = 10;
         countdownBox.hidden = false;
-        countdownBox.textContent = `Starting in ${secondsLeft}…`;
+        countdownBox.textContent = `Reward unlocks in… ${secondsLeft}…`;
         countdownTimer = setInterval(() => {
           secondsLeft--;
           if (secondsLeft > 0)
-            countdownBox.textContent = `Starting in ${secondsLeft}…`;
+            countdownBox.textContent = `Reward unlocks in… ${secondsLeft}…`;
           else {
             clearInterval(countdownTimer);
             countdownTimer = null;
