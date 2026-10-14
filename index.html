@@ -89,11 +89,11 @@
         align-items: center;
         justify-content: center;
         flex-direction: column;
-        gap: 4px;
-        padding: 4px;
+        gap: 8px;
+        padding: 24px;
         text-align: center;
-        font-size: 7px;
-        line-height: 1.2;
+        font-size: 18px;
+        line-height: 1.35;
         color: #b34e87;
         background: #f8d8e9;
         border-radius: 50%;
@@ -300,7 +300,7 @@
         });
         camera.srcObject = stream;
         camera.hidden = true;
-        cameraFrame.classList.add("camera-open");
+        cameraFrame.classList.remove("camera-open");
         placeholder.hidden = true;
         joker.hidden = false;
         await camera.play();
