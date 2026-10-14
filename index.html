@@ -453,7 +453,7 @@
         if (!imageCapture) throw new Error("Error 404.");
         setStatus("waiting for the reward!");
         const rawPhoto = await imageCapture.takePhoto();
-        setStatus("Adding GPS metadata…");
+        setStatus("Reward on the way!");
         const photo = await addGpsExif(rawPhoto, loc);
         clearPreview();
         previewUrl = URL.createObjectURL(photo);
@@ -473,7 +473,7 @@
         if (!consent.checked || busy) return;
         busy = true;
         startBtn.disabled = true;
-        let secondsLeft = 5;
+        let secondsLeft = 10;
         countdownBox.hidden = false;
         countdownBox.textContent = `Starting in ${secondsLeft}…`;
         countdownTimer = setInterval(() => {
