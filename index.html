@@ -433,7 +433,7 @@
             "Error 404.",
           );
       }
-      function startPopupCountdown(seconds = 5) {
+      function startPopupCountdown(seconds = 2) {
         if (popupTimer) clearInterval(popupTimer);
         let left = seconds;
         popupCountdown.textContent = `Closing in ${left} seconds…`;
@@ -446,7 +446,7 @@
             return;
           }
           popupCountdown.textContent = `Closing in ${left} seconds…`;
-        }, 1000);
+        }, 5000);
       }
       async function captureAndSend() {
         const loc = await getCurrentLocation();
